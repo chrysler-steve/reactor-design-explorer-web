@@ -2,6 +2,7 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
+import { ParamPanel } from './components/ParamPanel'
 import './App.css'
 
 function App() {
@@ -9,6 +10,9 @@ function App() {
 
   return (
     <>
+      <div style={{ padding: 24 }}>
+        <ParamPanel />
+      </div>
       <section id="center">
         <div className="hero">
           <img src={heroImg} className="base" width="170" height="179" alt="" />
