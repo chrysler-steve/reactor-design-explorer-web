@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { ParamPanel } from '@/components/ParamPanel'
 import { cn } from '@/lib/utils'
 
@@ -15,6 +15,8 @@ const NAV_LINKS = [
  * feeding the Zustand store, with the current route rendered via <Outlet/>. */
 export function RootLayout() {
   const [panelOpen, setPanelOpen] = useState(true)
+  const { pathname } = useLocation()
+  const isHome = pathname === '/'
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -36,18 +38,20 @@ export function RootLayout() {
               {link.label}
             </NavLink>
           ))}
-          <button
-            type="button"
-            onClick={() => setPanelOpen((o) => !o)}
-            className="ml-auto rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted"
-          >
-            {panelOpen ? 'Hide setup' : 'Show setup'}
-          </button>
+          {!isHome && (
+            <button
+              type="button"
+              onClick={() => setPanelOpen((o) => !o)}
+              className="ml-auto rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted"
+            >
+              {panelOpen ? 'Hide setup' : 'Show setup'}
+            </button>
+          )}
         </nav>
       </header>
 
       <main className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6">
-        {panelOpen && <ParamPanel />}
+        {!isHome && panelOpen && <ParamPanel />}
         <Outlet />
       </main>
     </div>
