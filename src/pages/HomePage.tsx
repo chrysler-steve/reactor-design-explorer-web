@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { BatchScene } from '@/components/reactors/BatchScene'
+import { ReactionCoordinateMark } from '@/components/ReactionCoordinateMark'
 import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
@@ -14,7 +15,11 @@ const REACTORS = [
 export function HomePage() {
   return (
     <div className="flex flex-col gap-12 py-8">
-      <section className="grid items-center gap-8 lg:grid-cols-2">
+      <section className="relative grid items-center gap-8 overflow-hidden lg:grid-cols-2">
+        <ReactionCoordinateMark
+          showDetail
+          className="pointer-events-none absolute -top-10 -left-20 h-72 w-[40rem] text-primary/[0.07]"
+        />
         <div className="flex flex-col gap-4">
           <h1 className="font-heading text-4xl font-semibold tracking-tight">Reactor Design Explorer</h1>
           <p className="text-lg text-muted-foreground">

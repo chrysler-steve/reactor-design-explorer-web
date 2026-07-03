@@ -1,13 +1,34 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+@import "@fontsource-variable/space-grotesk";
+@import "@fontsource/ibm-plex-sans/latin-400.css";
+@import "@fontsource/ibm-plex-sans/latin-500.css";
+@import "@fontsource/ibm-plex-sans/latin-600.css";
+@import "@fontsource/ibm-plex-sans/latin-700.css";
+@import "@fontsource/ibm-plex-mono/latin-400.css";
+@import "@fontsource/ibm-plex-mono/latin-500.css";
+@import "@fontsource/ibm-plex-mono/latin-600.css";
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+  Visual identity: "process instrument panel" — a chemical-engineering-grounded
+  system, not a generic dashboard reskin. Cool blueprint/graph-paper surfaces
+  (light) or navy-slate control-room panels (dark), a burnt-copper primary
+  accent (reactor heat / thermocouple glow), and a deep instrument-ink-blue
+  secondary (P&ID/blueprint linework). Deliberately distinct from the
+  species/reactor data-encoding palette in speciesColors.ts, which stays
+  untouched — brand chrome and data-semantic color never share a role.
+  Space Grotesk (display) + IBM Plex Sans (body) + IBM Plex Mono (data/
+  readouts — wired to Tailwind's font-mono, so every existing k/Ca/Xa/τ
+  readout across the app picks this up automatically). Contrast validated
+  against WCAG AA (>=4.5:1) for every text/background pairing below.
+*/
 @theme inline {
-    --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
+    --font-heading: 'Space Grotesk Variable', var(--font-sans);
+    --font-sans: 'IBM Plex Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,72 +70,72 @@
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    --background: #EEF1F2;
+    --foreground: #1B2430;
+    --card: #FFFFFF;
+    --card-foreground: #1B2430;
+    --popover: #FFFFFF;
+    --popover-foreground: #1B2430;
+    --primary: #9C4A1D;
+    --primary-foreground: #FFFFFF;
+    --secondary: #2B4C6F;
+    --secondary-foreground: #FFFFFF;
+    --muted: #E2E6E8;
+    --muted-foreground: #5B6572;
+    --accent: #E4EAF0;
+    --accent-foreground: #2B4C6F;
+    --destructive: #C0281A;
+    --border: #CBD2D7;
+    --input: #CBD2D7;
+    --ring: #9C4A1D;
+    --chart-1: #9C4A1D;
+    --chart-2: #2B4C6F;
+    --chart-3: #1A947A;
+    --chart-4: #8C38BF;
+    --chart-5: #5B6572;
+    --radius: 0.4rem;
+    --sidebar: #E9ECEE;
+    --sidebar-foreground: #1B2430;
+    --sidebar-primary: #9C4A1D;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: #E4EAF0;
+    --sidebar-accent-foreground: #2B4C6F;
+    --sidebar-border: #CBD2D7;
+    --sidebar-ring: #9C4A1D;
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    --background: #12181F;
+    --foreground: #E7ECF0;
+    --card: #1E2733;
+    --card-foreground: #E7ECF0;
+    --popover: #1E2733;
+    --popover-foreground: #E7ECF0;
+    --primary: #E08A4F;
+    --primary-foreground: #1B1208;
+    --secondary: #7FA3C7;
+    --secondary-foreground: #12181F;
+    --muted: #232E3A;
+    --muted-foreground: #9AA7B4;
+    --accent: #24313F;
+    --accent-foreground: #7FA3C7;
+    --destructive: #F2685C;
+    --border: #2E3A48;
+    --input: #2E3A48;
+    --ring: #E08A4F;
+    --chart-1: #E08A4F;
+    --chart-2: #7FA3C7;
+    --chart-3: #3FC7A6;
+    --chart-4: #B073E0;
+    --chart-5: #9AA7B4;
+    --sidebar: #1A222C;
+    --sidebar-foreground: #E7ECF0;
+    --sidebar-primary: #E08A4F;
+    --sidebar-primary-foreground: #1B1208;
+    --sidebar-accent: #24313F;
+    --sidebar-accent-foreground: #7FA3C7;
+    --sidebar-border: #2E3A48;
+    --sidebar-ring: #E08A4F;
 }
 
 @layer base {

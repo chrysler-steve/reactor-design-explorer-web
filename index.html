@@ -5,6 +5,17 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>reactor-design-explorer-web</title>
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('reactor-design-explorer-theme');
+          var theme = stored === 'light' ? 'light' : 'dark';
+          document.documentElement.classList.toggle('dark', theme === 'dark');
+        } catch (e) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
