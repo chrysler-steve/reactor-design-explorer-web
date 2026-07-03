@@ -3,6 +3,7 @@ import { useParamsStore } from '@/store/paramsStore'
 import { rateConstant, solve_CSTR, solve_PFR, type ConcMatrix, type RxParams } from '@/lib/rxKinetics'
 import { ConcentrationChart } from '@/components/ConcentrationChart'
 import { ConversionChart } from '@/components/ConversionChart'
+import { EquationsPanel } from '@/components/EquationsPanel'
 import { CSTRScene } from '@/components/reactors/CSTRScene'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
@@ -65,7 +66,8 @@ export function CSTRPage() {
     params.qmax > params.qmin ? (clampedQ - params.qmin) / (params.qmax - params.qmin) : 0
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="flex flex-col gap-6">
+      <div className="grid gap-6 lg:grid-cols-2">
       <Card>
         <CardHeader>
           <CardTitle>CSTR</CardTitle>
@@ -140,6 +142,9 @@ export function CSTRPage() {
           </CardContent>
         </Card>
       </div>
+      </div>
+
+      <EquationsPanel params={params} reactor="cstr" />
     </div>
   )
 }

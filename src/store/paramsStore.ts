@@ -11,7 +11,9 @@ interface ParamsState {
     key: K,
     value: RxParams[K],
   ) => void
-  reset: () => void
+  /** Resets to defaults, or to a specific params object — used to hydrate
+   * from a shared-config URL link. */
+  reset: (params?: RxParams) => void
 }
 
 /** Species 1 must always be a reactant — every closed-form/derivation in
@@ -50,5 +52,5 @@ export const useParamsStore = create<ParamsState>((set) => ({
 
   setField: (key, value) => set((state) => ({ params: { ...state.params, [key]: value } })),
 
-  reset: () => set({ params: defaultParams() }),
+  reset: (params) => set({ params: params ?? defaultParams() }),
 }))

@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { useParamsStore } from '@/store/paramsStore'
 import { equationString } from '@/lib/rxKinetics'
+import { buildShareUrl } from '@/lib/shareConfig'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,10 +13,30 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
+function ShareLinkButton() {
+  const params = useParamsStore((s) => s.params)
+  const [copied, setCopied] = useState(false)
+
+  const handleClick = async () => {
+    await navigator.clipboard.writeText(buildShareUrl(params))
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      className="shrink-0 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+    >
+      {copied ? 'Copied!' : 'Copy share link'}
+    </button>
+  )
+}
+
 /** Shared parameter panel — species/stoichiometry, kinetics, reactor, and
  * operating-range inputs feeding the Zustand store every reactor tab reads
- * from. Layout/visual styling here is functional only; the real design pass
- * (frontend-design + ui-ux-pro-max) lands in a later task. */
+ * from. */
 export function ParamPanel() {
   const params = useParamsStore((s) => s.params)
   const setSpeciesName = useParamsStore((s) => s.setSpeciesName)
@@ -25,12 +47,15 @@ export function ParamPanel() {
 
   return (
     <div className="flex flex-col gap-4">
-      <p
-        data-testid="equation-preview"
-        className="rounded-lg bg-muted px-4 py-2 text-center font-mono text-sm"
-      >
-        {equationString(params)}
-      </p>
+      <div className="flex items-center gap-2">
+        <p
+          data-testid="equation-preview"
+          className="flex-1 rounded-lg bg-muted px-4 py-2 text-center font-mono text-sm"
+        >
+          {equationString(params)}
+        </p>
+        <ShareLinkButton />
+      </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>
