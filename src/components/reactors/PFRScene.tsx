@@ -3,6 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import { convColor } from '@/lib/speciesColors'
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 const N_TUBES_HEX = 6
 const PITCH = 0.5
@@ -83,8 +84,10 @@ function TubeParticles({ xaProfile, speed }: { xaProfile: number[]; speed: numbe
       Array.from({ length: N_PARTICLES_PER_TUBE }, (_, pi) => (pi / N_PARTICLES_PER_TUBE + ti * 0.13) % 1),
     ),
   )
+  const reducedMotion = usePrefersReducedMotion()
 
   useFrame((_, delta) => {
+    if (reducedMotion) return
     let k = 0
     for (const [, y, z] of TUBE_POSITIONS) {
       for (let p = 0; p < N_PARTICLES_PER_TUBE; p++) {

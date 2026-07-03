@@ -3,6 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import { convColor } from '@/lib/speciesColors'
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 const FEED_COLOR = convColor(0)
 const OUTLET_DIR = new THREE.Vector3(1, -0.15, 0).normalize()
@@ -11,8 +12,10 @@ const N_OUTLET = 6
 
 function Impeller({ speed }: { speed: number }) {
   const ref = useRef<THREE.Group>(null)
+  const reducedMotion = usePrefersReducedMotion()
   useFrame((_, delta) => {
-    if (ref.current) ref.current.rotation.y += delta * speed
+    if (reducedMotion || !ref.current) return
+    ref.current.rotation.y += delta * speed
   })
   return (
     <group ref={ref}>
@@ -60,7 +63,9 @@ function Vessel() {
 /** Feed particles falling from a top inlet nozzle into the tank, looping. */
 function InletStream({ speed }: { speed: number }) {
   const refs = useRef<(THREE.Mesh | null)[]>([])
+  const reducedMotion = usePrefersReducedMotion()
   useFrame((_, delta) => {
+    if (reducedMotion) return
     refs.current.forEach((m) => {
       if (!m) return
       m.position.y -= delta * speed
@@ -91,7 +96,9 @@ function InletStream({ speed }: { speed: number }) {
 /** Product particles streaming out a side outlet port, colored by conversion, looping. */
 function OutletStream({ speed, conversion }: { speed: number; conversion: number }) {
   const refs = useRef<(THREE.Mesh | null)[]>([])
+  const reducedMotion = usePrefersReducedMotion()
   useFrame((_, delta) => {
+    if (reducedMotion) return
     refs.current.forEach((m) => {
       if (!m) return
       m.position.addScaledVector(OUTLET_DIR, delta * speed)

@@ -3,11 +3,14 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import { convColor } from '@/lib/speciesColors'
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 function Impeller({ speed }: { speed: number }) {
   const ref = useRef<THREE.Group>(null)
+  const reducedMotion = usePrefersReducedMotion()
   useFrame((_, delta) => {
-    if (ref.current) ref.current.rotation.y += delta * speed
+    if (reducedMotion || !ref.current) return
+    ref.current.rotation.y += delta * speed
   })
   return (
     <group ref={ref}>
