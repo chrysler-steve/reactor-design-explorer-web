@@ -3,11 +3,14 @@ import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
 import { router } from './router'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import './index.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <ErrorBoundary>
+      <RouterProvider router={router} />
+    </ErrorBoundary>
     <Analytics />
   </StrictMode>,
 )

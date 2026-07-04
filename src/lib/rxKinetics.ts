@@ -108,6 +108,28 @@ export function rate(P: RxParams, k: number, C: State4): number {
   return k * Math.pow(C1, P.nA) * Math.pow(C2, P.nB)
 }
 
+/** Fractional conversion of species 1 at concentration Ca. Shared by every
+ * reactor page's readouts/charts so the C0s[0]<=0 edge case is handled once. */
+export function conversionOf(P: RxParams, Ca: number): number {
+  return P.C0s[0] > 0 ? 1 - Ca / P.C0s[0] : 0
+}
+
+/** Normalizes a rate constant logarithmically into [0,1] across [Tmin,Tmax] —
+ * drives 3D-scene animation speed on a perceptually-even scale. */
+export function rateFraction(P: RxParams, k: number): number {
+  const kMin = rateConstant(P, P.Tmin)
+  const kMax = rateConstant(P, P.Tmax)
+  const logRange = Math.log(kMax) - Math.log(kMin)
+  if (!(logRange > 0)) return 0
+  return Math.min(Math.max((Math.log(k) - Math.log(kMin)) / logRange, 0), 1)
+}
+
+/** Normalizes a flow rate linearly into [0,1] across [qmin,qmax] — drives 3D
+ * particle/impeller animation speed for CSTR and PFR. */
+export function flowFractionOf(P: RxParams, q: number): number {
+  return P.qmax > P.qmin ? (q - P.qmin) / (P.qmax - P.qmin) : 0
+}
+
 // ── Broadcasting helpers (mirror MATLAB's elementwise .^ / .* / ./ semantics) ──
 
 function broadcastLength(...xs: NumOrArr[]): number {
@@ -182,7 +204,9 @@ export function caCSTR(P: RxParams, k: NumOrArr, tau: NumOrArr): number[] {
   return ks.map((ki, i) => {
     const ti = taus[i]
     if (n === 1) return C0 / (1 + ki * ti)
-    if (n === 2) return (2 * C0) / (1 + Math.sqrt(1 + 4 * ki * ti * C0))
+    // Radicand goes negative only for a nonphysical negative tau/k/C0 — clamp
+    // to 0 rather than propagate NaN through every downstream concentration.
+    if (n === 2) return (2 * C0) / (1 + Math.sqrt(Math.max(1 + 4 * ki * ti * C0, 0)))
     return bisect((C) => C0 - C - ki * ti * Math.pow(C, n), 0, C0)
   })
 }

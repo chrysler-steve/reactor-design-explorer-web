@@ -13,14 +13,24 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
+/** Vr/qmin/qmax feed tau = Vr/q and similar divisions downstream — clamp to a
+ * small positive floor instead of letting 0 or a negative value through, which
+ * would produce Infinity/NaN readouts on the reactor pages. */
+const MIN_POSITIVE = 1e-6
+
 function ShareLinkButton() {
   const params = useParamsStore((s) => s.params)
   const [copied, setCopied] = useState(false)
 
   const handleClick = async () => {
-    await navigator.clipboard.writeText(buildShareUrl(params))
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    try {
+      await navigator.clipboard.writeText(buildShareUrl(params))
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Clipboard access can be denied (permissions, unfocused page, insecure
+      // context) — leave the button's label unchanged rather than crashing.
+    }
   }
 
   return (
@@ -157,7 +167,7 @@ export function ParamPanel() {
                 type="number"
                 min={0}
                 value={params.Vr}
-                onChange={(e) => setField('Vr', Number(e.target.value))}
+                onChange={(e) => setField('Vr', Math.max(Number(e.target.value), MIN_POSITIVE))}
               />
             </Field>
             <Field label="t max (min)">
@@ -195,7 +205,7 @@ export function ParamPanel() {
                 type="number"
                 min={0}
                 value={params.qmin}
-                onChange={(e) => setField('qmin', Number(e.target.value))}
+                onChange={(e) => setField('qmin', Math.max(Number(e.target.value), MIN_POSITIVE))}
               />
             </Field>
             <Field label="q max (L/min)">
@@ -203,7 +213,7 @@ export function ParamPanel() {
                 type="number"
                 min={0}
                 value={params.qmax}
-                onChange={(e) => setField('qmax', Number(e.target.value))}
+                onChange={(e) => setField('qmax', Math.max(Number(e.target.value), MIN_POSITIVE))}
               />
             </Field>
           </CardContent>

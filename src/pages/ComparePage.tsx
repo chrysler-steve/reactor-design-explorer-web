@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useParamsStore } from '@/store/paramsStore'
-import { rateConstant, solve_batch, solve_CSTR, solve_PFR, type RxParams } from '@/lib/rxKinetics'
+import { conversionOf, rateConstant, solve_batch, solve_CSTR, solve_PFR, type RxParams } from '@/lib/rxKinetics'
 import { SPECIES_COLORS } from '@/lib/speciesColors'
 import Plot from '@/components/Plot'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -20,8 +20,7 @@ const REACTOR_COLORS = {
 /** Batch evaluated at t=tmax, CSTR & PFR at steady state for the same tau=Vr/q —
  * mirrors ReactorCompareWindow.m's computeAll, including its form-2 caveat: no
  * elementwise-vectorized closed form across k, so form 2 solves once per k value. */
-function computeAllSweep(params: RxParams, kArr: number[], tau: number) {
-  const q = params.Vr / tau
+function computeAllSweep(params: RxParams, kArr: number[], tau: number, q: number) {
   if (params.rateForm === 1) {
     return {
       Ca_batch: solve_batch(params, kArr, params.tmax)[0],
@@ -40,8 +39,7 @@ function computeAllSweep(params: RxParams, kArr: number[], tau: number) {
   return { Ca_batch, Ca_cstr, Ca_pfr }
 }
 
-function computeAllPoint(params: RxParams, k: number, tau: number) {
-  const q = params.Vr / tau
+function computeAllPoint(params: RxParams, k: number, tau: number, q: number) {
   return {
     Ca_batch: solve_batch(params, k, params.tmax)[0][0],
     Ca_cstr: solve_CSTR(params, k, tau)[0][0],
@@ -102,20 +100,33 @@ export function ComparePage() {
       ),
     [params.Tmin, params.Tmax],
   )
-  const k_sweep = rateConstant(params, T_sweep)
-  const sweep = useMemo(() => computeAllSweep(params, k_sweep, tau), [params, k_sweep, tau])
+  const k_sweep = useMemo(() => rateConstant(params, T_sweep), [params, T_sweep])
+  const sweep = useMemo(
+    () => computeAllSweep(params, k_sweep, tau, clampedQ),
+    [params, k_sweep, tau, clampedQ],
+  )
 
   const k_point = rateConstant(params, clampedT)
-  const point = useMemo(() => computeAllPoint(params, k_point, tau), [params, k_point, tau])
+  const point = useMemo(
+    () => computeAllPoint(params, k_point, tau, clampedQ),
+    [params, k_point, tau, clampedQ],
+  )
 
-  const C0 = params.C0s[0]
-  const toXa = (Ca: number) => (C0 > 0 ? 1 - Ca / C0 : 0)
-  const Xa_batch = useMemo(() => sweep.Ca_batch.map(toXa), [sweep.Ca_batch, C0])
-  const Xa_cstr = useMemo(() => sweep.Ca_cstr.map(toXa), [sweep.Ca_cstr, C0])
-  const Xa_pfr = useMemo(() => sweep.Ca_pfr.map(toXa), [sweep.Ca_pfr, C0])
-  const XaPoint_batch = toXa(point.Ca_batch)
-  const XaPoint_cstr = toXa(point.Ca_cstr)
-  const XaPoint_pfr = toXa(point.Ca_pfr)
+  const Xa_batch = useMemo(
+    () => sweep.Ca_batch.map((Ca) => conversionOf(params, Ca)),
+    [sweep.Ca_batch, params],
+  )
+  const Xa_cstr = useMemo(
+    () => sweep.Ca_cstr.map((Ca) => conversionOf(params, Ca)),
+    [sweep.Ca_cstr, params],
+  )
+  const Xa_pfr = useMemo(
+    () => sweep.Ca_pfr.map((Ca) => conversionOf(params, Ca)),
+    [sweep.Ca_pfr, params],
+  )
+  const XaPoint_batch = conversionOf(params, point.Ca_batch)
+  const XaPoint_cstr = conversionOf(params, point.Ca_cstr)
+  const XaPoint_pfr = conversionOf(params, point.Ca_pfr)
 
   const dXa = XaPoint_pfr - XaPoint_cstr
   const pfrLeads = dXa > 1e-4

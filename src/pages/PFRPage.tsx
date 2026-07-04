@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useParamsStore } from '@/store/paramsStore'
-import { rateConstant, solve_PFR, solve_CSTR } from '@/lib/rxKinetics'
+import { conversionOf, flowFractionOf, rateConstant, solve_PFR, solve_CSTR } from '@/lib/rxKinetics'
 import { ConcentrationChart } from '@/components/ConcentrationChart'
 import { ConversionChart } from '@/components/ConversionChart'
 import { EquationsPanel } from '@/components/EquationsPanel'
@@ -31,18 +31,17 @@ export function PFRPage() {
     [params, k_point, V_sweep, clampedQ],
   )
   const Xa_sweep = useMemo(
-    () => C_sweep[0].map((c1) => (params.C0s[0] > 0 ? 1 - c1 / params.C0s[0] : 0)),
-    [C_sweep, params.C0s],
+    () => C_sweep[0].map((c1) => conversionOf(params, c1)),
+    [C_sweep, params],
   )
 
   const Ca = C_sweep[0][C_sweep[0].length - 1]
-  const conversion = params.C0s[0] > 0 ? 1 - Ca / params.C0s[0] : 0
+  const conversion = conversionOf(params, Ca)
 
   const Ca_cstr = useMemo(() => solve_CSTR(params, k_point, tau)[0][0], [params, k_point, tau])
-  const conversionCstr = params.C0s[0] > 0 ? 1 - Ca_cstr / params.C0s[0] : 0
+  const conversionCstr = conversionOf(params, Ca_cstr)
 
-  const flowFraction =
-    params.qmax > params.qmin ? (clampedQ - params.qmin) / (params.qmax - params.qmin) : 0
+  const flowFraction = flowFractionOf(params, clampedQ)
 
   return (
     <div className="flex flex-col gap-6">

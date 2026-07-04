@@ -1,6 +1,15 @@
 import { useMemo, useState } from 'react'
 import { useParamsStore } from '@/store/paramsStore'
-import { rateConstant, solve_CSTR, solve_PFR, type ConcMatrix, type RxParams } from '@/lib/rxKinetics'
+import {
+  conversionOf,
+  flowFractionOf,
+  rateConstant,
+  rateFraction,
+  solve_CSTR,
+  solve_PFR,
+  type ConcMatrix,
+  type RxParams,
+} from '@/lib/rxKinetics'
 import { ConcentrationChart } from '@/components/ConcentrationChart'
 import { ConversionChart } from '@/components/ConversionChart'
 import { EquationsPanel } from '@/components/EquationsPanel'
@@ -40,30 +49,26 @@ export function CSTRPage() {
       ),
     [params.Tmin, params.Tmax],
   )
-  const k_sweep = rateConstant(params, T_sweep)
+  const k_sweep = useMemo(() => rateConstant(params, T_sweep), [params, T_sweep])
   const C_sweep = useMemo(() => sweepCSTROverK(params, k_sweep, tau), [params, k_sweep, tau])
   const Xa_sweep = useMemo(
-    () => C_sweep[0].map((c1) => (params.C0s[0] > 0 ? 1 - c1 / params.C0s[0] : 0)),
-    [C_sweep, params.C0s],
+    () => C_sweep[0].map((c1) => conversionOf(params, c1)),
+    [C_sweep, params],
   )
 
   const k_point = rateConstant(params, clampedT)
   const C_point = useMemo(() => solve_CSTR(params, k_point, tau), [params, k_point, tau])
   const Ca = C_point[0][0]
-  const conversion = params.C0s[0] > 0 ? 1 - Ca / params.C0s[0] : 0
+  const conversion = conversionOf(params, Ca)
 
   const Ca_pfr = useMemo(
     () => solve_PFR(params, k_point, params.Vr, clampedQ)[0][0],
     [params, k_point, clampedQ],
   )
-  const conversionPfr = params.C0s[0] > 0 ? 1 - Ca_pfr / params.C0s[0] : 0
+  const conversionPfr = conversionOf(params, Ca_pfr)
 
-  const kMin = rateConstant(params, params.Tmin)
-  const kMax = rateConstant(params, params.Tmax)
-  const logRange = Math.log(kMax) - Math.log(kMin)
-  const kFraction = logRange > 0 ? Math.min(Math.max((Math.log(k_point) - Math.log(kMin)) / logRange, 0), 1) : 0
-  const flowFraction =
-    params.qmax > params.qmin ? (clampedQ - params.qmin) / (params.qmax - params.qmin) : 0
+  const kFraction = rateFraction(params, k_point)
+  const flowFraction = flowFractionOf(params, clampedQ)
 
   return (
     <div className="flex flex-col gap-6">

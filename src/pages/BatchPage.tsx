@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useParamsStore } from '@/store/paramsStore'
-import { rateConstant, solve_batch } from '@/lib/rxKinetics'
+import { conversionOf, rateConstant, rateFraction, solve_batch } from '@/lib/rxKinetics'
 import { ConcentrationChart } from '@/components/ConcentrationChart'
 import { EquationsPanel } from '@/components/EquationsPanel'
 import { BatchScene } from '@/components/reactors/BatchScene'
@@ -25,19 +25,15 @@ export function BatchPage() {
   const C = useMemo(() => solve_batch(params, k, t), [params, k, t])
 
   const finalC1 = C[0][C[0].length - 1]
-  const conversion = params.C0s[0] > 0 ? 1 - finalC1 / params.C0s[0] : 0
+  const conversion = conversionOf(params, finalC1)
   const tempFraction =
     params.Tmax > params.Tmin ? (clampedT - params.Tmin) / (params.Tmax - params.Tmin) : 0
 
   const xaTrajectory = useMemo(
-    () => C[0].map((c1) => (params.C0s[0] > 0 ? 1 - c1 / params.C0s[0] : 0)),
-    [C, params.C0s],
+    () => C[0].map((c1) => conversionOf(params, c1)),
+    [C, params],
   )
-  const kMin = rateConstant(params, params.Tmin)
-  const kMax = rateConstant(params, params.Tmax)
-  const logRange = Math.log(kMax) - Math.log(kMin)
-  const kFraction =
-    logRange > 0 ? Math.min(Math.max((Math.log(k) - Math.log(kMin)) / logRange, 0), 1) : 0
+  const kFraction = rateFraction(params, k)
 
   return (
     <div className="flex flex-col gap-6">
