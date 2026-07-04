@@ -29,6 +29,16 @@ export function BatchPage() {
   const tempFraction =
     params.Tmax > params.Tmin ? (clampedT - params.Tmin) / (params.Tmax - params.Tmin) : 0
 
+  const xaTrajectory = useMemo(
+    () => C[0].map((c1) => (params.C0s[0] > 0 ? 1 - c1 / params.C0s[0] : 0)),
+    [C, params.C0s],
+  )
+  const kMin = rateConstant(params, params.Tmin)
+  const kMax = rateConstant(params, params.Tmax)
+  const logRange = Math.log(kMax) - Math.log(kMin)
+  const kFraction =
+    logRange > 0 ? Math.min(Math.max((Math.log(k) - Math.log(kMin)) / logRange, 0), 1) : 0
+
   return (
     <div className="flex flex-col gap-6">
       <div className="grid gap-6 lg:grid-cols-2">
@@ -58,7 +68,7 @@ export function BatchPage() {
               <dd className="text-right font-mono">{(conversion * 100).toFixed(1)}%</dd>
             </dl>
 
-            <BatchScene conversion={conversion} tempFraction={tempFraction} />
+            <BatchScene xaTrajectory={xaTrajectory} kFraction={kFraction} tempFraction={tempFraction} />
           </CardContent>
         </Card>
 

@@ -19,3 +19,13 @@ export function convColor(Xa: number): string {
   const rgb = from.map((c, i) => Math.round(((1 - t) * c + t * to[i]) * 255))
   return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`
 }
+
+/** Linear-interpolate a value from a uniformly-sampled [0,1]-domain profile array. */
+export function interpAt(profile: number[], u: number): number {
+  const clamped = Math.min(Math.max(u, 0), 1)
+  const idx = clamped * (profile.length - 1)
+  const lo = Math.floor(idx)
+  const hi = Math.min(lo + 1, profile.length - 1)
+  const frac = idx - lo
+  return profile[lo] * (1 - frac) + profile[hi] * frac
+}

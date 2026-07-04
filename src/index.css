@@ -149,3 +149,116 @@
     @apply font-sans;
     }
 }
+
+/*
+  Liquid-glass surface treatment: a frosted-translucency refinement layered
+  on top of the token system above, not a replacement for it. Applied via
+  the glass-surface class (paired with Tailwind's bg-opacity/backdrop-blur
+  utilities at each call site) so this stays additive to the theme block
+  above. Deliberately unlayered (not inside a Tailwind layer) so it wins
+  over Tailwind's layered utility classes regardless of source order.
+*/
+.glass-surface {
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+    0 1px 2px 0 rgba(0, 0, 0, 0.04);
+}
+.dark .glass-surface {
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
+    0 4px 16px -4px rgba(0, 0, 0, 0.4);
+}
+
+/* OS-level reduce-transparency accessibility setting: flatten glass to a
+   solid surface, independent of the reduced-motion axis below. */
+@media (prefers-reduced-transparency: reduce) {
+  .glass-surface {
+    background-color: var(--card) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+/* Tab-switch morph via the native View Transitions API, used in RootLayout:
+   a soft cross-fade plus blur dissolve between routes. No-op on browsers
+   without View Transitions support, navigation just happens instantly. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+  animation-timing-function: ease-out;
+}
+::view-transition-old(root) {
+  animation-name: glass-fade-out;
+}
+::view-transition-new(root) {
+  animation-name: glass-fade-in;
+}
+
+@keyframes glass-fade-out {
+  from {
+    opacity: 1;
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    filter: blur(6px);
+  }
+}
+@keyframes glass-fade-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+/* Cursor-follow spotlight highlight plus hover pop, driven by custom
+   properties written directly by the useSpotlightHover hook. */
+.spotlight-hover {
+  position: relative;
+  transition:
+    transform 200ms ease-out,
+    background-color 200ms ease-out,
+    box-shadow 200ms ease-out;
+}
+.spotlight-hover:hover {
+  transform: scale(1.02);
+}
+
+.spotlight-hover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    180px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    rgba(255, 255, 255, 0.15),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+  pointer-events: none;
+}
+
+.spotlight-hover:hover::after {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .spotlight-hover,
+  .spotlight-hover::after {
+    transition: none;
+  }
+  .spotlight-hover:hover {
+    transform: none;
+  }
+}
