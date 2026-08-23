@@ -195,6 +195,26 @@ export function SupportLegs({
   )
 }
 
+/**
+ * Support ring encircling the vessel wall, which the legs and tie rods land on.
+ *
+ * torusGeometry is built in the XY plane — standing upright like a wheel — so it
+ * MUST be rotated into XZ to lie flat around a vertical vessel. Without the
+ * rotation it reads as a hoop leaning against the tank.
+ *
+ * Place it where the wall is still at full radius (the knuckle), never at the
+ * dished bottom's low point, where the vessel has tapered to a point and the
+ * ring would encircle empty space.
+ */
+export function SupportRing({ y, radius, thickness = 0.04 }: { y: number; radius: number; thickness?: number }) {
+  return (
+    <mesh position={[0, y, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <torusGeometry args={[radius, thickness, 12, 48]} />
+      <meshStandardMaterial {...STEEL_MATERIAL} />
+    </mesh>
+  )
+}
+
 /** Four wall baffles — standard in any stirred tank, and a strong "this is a
  * reactor" cue that costs almost nothing to draw. */
 export function WallBaffles({

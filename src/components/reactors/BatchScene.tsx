@@ -8,6 +8,7 @@ import {
   GlassVessel,
   MotorHousing,
   SteelFlange,
+  SupportRing,
   SupportLegs,
   TieRods,
   WallBaffles,
@@ -131,13 +132,7 @@ function Vessel() {
       <SteelFlange y={VESSEL_TOP_Y} radius={VESSEL_RADIUS + 0.07} />
       <WallBaffles radius={VESSEL_RADIUS} topY={VESSEL_TOP_Y - 0.12} bottomY={KNUCKLE_Y + 0.05} />
       <TieRods topY={VESSEL_TOP_Y} bottomY={KNUCKLE_Y} radius={VESSEL_RADIUS + 0.07} />
-      {/* Support ring sits at the knuckle, where the wall is still at full
-        * radius. Down at the dish's low point the vessel has tapered to a
-        * point, so a ring there encircles empty space. */}
-      <mesh position={[0, KNUCKLE_Y, 0]}>
-        <torusGeometry args={[VESSEL_RADIUS + 0.05, 0.045, 12, 44]} />
-        <meshStandardMaterial color="#B7BEC7" metalness={0.72} roughness={0.3} />
-      </mesh>
+      <SupportRing y={KNUCKLE_Y} radius={VESSEL_RADIUS + 0.04} />
       <SupportLegs
         topY={KNUCKLE_Y}
         bottomY={BASE_Y}
