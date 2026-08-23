@@ -191,6 +191,37 @@ describe('rxKinetics — equationString / maxConcentration', () => {
  * 99% across the entire slider range, so every chart rendered as a flat line
  * and neither slider changed anything visible.
  */
+describe('rxKinetics — zero-order CSTR exhausts its feed instead of stalling', () => {
+  // Regression: bisect() assumes f(lo) >= 0 >= f(hi), which n = 0 breaks once
+  // k*tau exceeds C0 — both endpoints go negative, bisection walks to C0, and a
+  // fully-converted reactor reported 0% conversion.
+  const P: RxParams = { ...defaultParams(), nA: 0, C0s: [0.1, 0, 0, 0], nu: [-1, 1, 0, 0] }
+
+  it('fully converts when k*tau exceeds the feed concentration', () => {
+    // k*tau = 0.01 * 50 = 0.5, well past C0 = 0.1.
+    expect(caCSTR(P, 0.01, [50])[0]).toBeCloseTo(0, 9)
+    expect(conversionOf(P, caCSTR(P, 0.01, [50])[0])).toBeCloseTo(1, 9)
+  })
+
+  it('leaves the exact linear remainder when k*tau is below the feed', () => {
+    // Zero order consumes at a constant rate: C = C0 - k*tau.
+    expect(caCSTR(P, 0.001, [50])[0]).toBeCloseTo(0.05, 9)
+  })
+
+  it('is monotone in residence time', () => {
+    const taus = [1, 5, 10, 25, 50, 100]
+    const cs = taus.map((t) => caCSTR(P, 0.001, [t])[0])
+    for (let i = 1; i < cs.length; i++) expect(cs[i]).toBeLessThanOrEqual(cs[i - 1] + 1e-12)
+  })
+
+  it('still solves ordinary fractional orders through bisection', () => {
+    const half: RxParams = { ...defaultParams(), nA: 0.5, C0s: [1, 0, 0, 0], nu: [-1, 1, 0, 0] }
+    const C = caCSTR(half, 0.2, [3])[0]
+    // C0 - C - k*tau*sqrt(C) = 0 must hold at the returned root.
+    expect(1 - C - 0.2 * 3 * Math.sqrt(C)).toBeCloseTo(0, 9)
+  })
+})
+
 describe('rxKinetics — default parameters stay in a responsive regime', () => {
   const P = defaultParams()
   const XaBatch = (T: number) => conversionOf(P, caBatch(P, rateConstant(P, T), [P.tmax])[0])

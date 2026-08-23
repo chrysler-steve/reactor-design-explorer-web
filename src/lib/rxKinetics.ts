@@ -213,7 +213,16 @@ export function caCSTR(P: RxParams, k: NumOrArr, tau: NumOrArr): number[] {
     // Radicand goes negative only for a nonphysical negative tau/k/C0 — clamp
     // to 0 rather than propagate NaN through every downstream concentration.
     if (n === 2) return (2 * C0) / (1 + Math.sqrt(Math.max(1 + 4 * ki * ti * C0, 0)))
-    return bisect((C) => C0 - C - ki * ti * Math.pow(C, n), 0, C0)
+    const f = (C: number) => C0 - C - ki * ti * Math.pow(C, n)
+    // bisect() requires f(lo) >= 0 >= f(hi). That holds for every order above 0,
+    // where C^n -> 0 as C -> 0 and so f(0) = C0 > 0. At n = 0 the rate no longer
+    // vanishes with concentration (C^0 = 1), so f(0) = C0 - k*tau goes negative
+    // once the residence time is long enough to consume the whole feed. There is
+    // then no interior root: the reactant is simply exhausted. Without this
+    // guard the bracket is invalid, bisection walks to C0, and a fully converted
+    // reactor reports 0% conversion instead of 100%.
+    if (f(0) <= 0) return 0
+    return bisect(f, 0, C0)
   })
 }
 
