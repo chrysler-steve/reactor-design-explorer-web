@@ -1,5 +1,5 @@
 import Plot from '@/components/Plot'
-import { SPECIES_COLORS } from '@/lib/speciesColors'
+import { SPECIES_COLORS, SPECIES_DASHES } from '@/lib/speciesColors'
 import type { ConcMatrix, RxParams } from '@/lib/rxKinetics'
 
 interface ConcentrationChartProps {
@@ -22,7 +22,7 @@ export function ConcentrationChart({ x, matrix, params, xLabel }: ConcentrationC
             type: 'scatter' as const,
             mode: 'lines' as const,
             name: params.species[i] || String.fromCharCode(65 + i),
-            line: { color: SPECIES_COLORS[i], width: 2.5 },
+            line: { color: SPECIES_COLORS[i], width: 2.5, dash: SPECIES_DASHES[i] },
           },
     )
     .filter((t): t is NonNullable<typeof t> => t !== null)
@@ -32,12 +32,18 @@ export function ConcentrationChart({ x, matrix, params, xLabel }: ConcentrationC
       data={traces}
       layout={{
         autosize: true,
-        margin: { l: 50, r: 20, t: 20, b: 45 },
+        margin: { l: 64, r: 20, t: 20, b: 48 },
         paper_bgcolor: 'transparent',
         plot_bgcolor: 'transparent',
         font: { color: 'currentColor', size: 12 },
         xaxis: { title: { text: xLabel }, gridcolor: 'rgba(128,128,128,0.25)' },
-        yaxis: { title: { text: 'Concentration (mol/L)' }, gridcolor: 'rgba(128,128,128,0.25)' },
+        yaxis: {
+          title: { text: 'Concentration (mol/L)' },
+          gridcolor: 'rgba(128,128,128,0.25)',
+          // Plotly's default SI prefixes render small concentrations as "800µ",
+          // which reads as a unit rather than a number on a mol/L axis.
+          exponentformat: 'none',
+        },
         legend: { orientation: 'h', y: -0.25 },
       }}
       config={{ displaylogo: false, responsive: true }}

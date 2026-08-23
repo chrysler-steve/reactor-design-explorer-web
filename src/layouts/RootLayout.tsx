@@ -23,7 +23,7 @@ function isLinkActive(link: { to: string; end?: boolean }, pathname: string) {
 
 /** A single nav tab: forwards its DOM node both to the shared spotlight-hover
  * tracker and to the parent's ref map (used to measure the sliding active-tab
- * pill), and opts into a native View Transition on click. */
+ * pill). */
 function NavItem({
   to,
   end,
@@ -40,7 +40,6 @@ function NavItem({
     <NavLink
       to={to}
       end={end}
-      viewTransition
       ref={(el) => {
         spotRef.current = el
         registerRef(el)
@@ -84,6 +83,9 @@ function ActiveTabPill({
       pill.style.height = `${elRect.height}px`
     }
     measure()
+    // The nav uses self-hosted webfonts; tab widths shift when they swap in, so
+    // re-measure once they've settled.
+    document.fonts?.ready.then(measure).catch(() => {})
     window.addEventListener('resize', measure)
     return () => window.removeEventListener('resize', measure)
   }, [activeTo, linkRefs, containerRef])
@@ -118,7 +120,6 @@ export function RootLayout() {
             <span className="hidden sm:inline">Reactor Design Explorer</span>
           </span>
           <div ref={navRowRef} className="relative flex flex-wrap items-center gap-1">
-            <ActiveTabPill activeTo={activeTo} linkRefs={linkRefs} containerRef={navRowRef} />
             {NAV_LINKS.map((link) => (
               <NavItem
                 key={link.to}
@@ -131,6 +132,12 @@ export function RootLayout() {
                 }}
               />
             ))}
+            {/* Rendered after the links so its layout effect runs once their refs
+             * are attached — measuring first leaves the pill zero-width, which
+             * dropped it entirely on first paint and left the active tab's
+             * primary-foreground text sitting on the bare background. Stacking is
+             * by z-index, so DOM order here doesn't affect what's drawn on top. */}
+            <ActiveTabPill activeTo={activeTo} linkRefs={linkRefs} containerRef={navRowRef} />
           </div>
           <div className="ml-auto flex items-center gap-1">
             {!isHome && (

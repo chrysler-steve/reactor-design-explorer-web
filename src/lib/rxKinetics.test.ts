@@ -3,6 +3,9 @@ import {
   defaultParams,
   caBatch,
   caCSTR,
+  caPFR,
+  conversionOf,
+  rateConstant,
   solve_batch,
   solve_CSTR,
   solve_PFR,
@@ -178,5 +181,38 @@ describe('rxKinetics — equationString / maxConcentration', () => {
   it('maxConcentration: product with |nu| > 1 exceeds every initial concentration', () => {
     const P: RxParams = { ...defaultParams(), nu: [-1, 3, 0, 0], C0s: [1, 0, 0, 0] }
     expect(maxConcentration(P)).toBeCloseTo(3, 9)
+  })
+})
+
+/**
+ * The shipped defaults have to leave the reactors somewhere interesting: the
+ * app's whole interaction is dragging temperature and flow rate and watching
+ * conversion respond. An earlier default (A = 1.11e8) put every reactor above
+ * 99% across the entire slider range, so every chart rendered as a flat line
+ * and neither slider changed anything visible.
+ */
+describe('rxKinetics — default parameters stay in a responsive regime', () => {
+  const P = defaultParams()
+  const XaBatch = (T: number) => conversionOf(P, caBatch(P, rateConstant(P, T), [P.tmax])[0])
+  const XaCSTR = (T: number, tau: number) =>
+    conversionOf(P, caCSTR(P, rateConstant(P, T), [tau])[0])
+  const XaPFR = (T: number, tau: number) =>
+    conversionOf(P, caPFR(P, rateConstant(P, T), [P.Vr], P.Vr / tau)[0])
+
+  it('batch conversion sweeps most of [0,1] across the temperature range', () => {
+    expect(XaBatch(P.Tmin)).toBeLessThan(0.15)
+    expect(XaBatch(P.Tmax)).toBeGreaterThan(0.95)
+  })
+
+  it('batch conversion passes through mid-range inside the slider, not at its edge', () => {
+    const Xmid = XaBatch(0.5 * (P.Tmin + P.Tmax))
+    expect(Xmid).toBeGreaterThan(0.5)
+    expect(Xmid).toBeLessThan(0.995)
+  })
+
+  it('CSTR and PFR separate visibly at mid-range, so Compare shows a real gap', () => {
+    const tau = P.Vr / P.qmin
+    const gap = XaPFR(350, tau) - XaCSTR(350, tau)
+    expect(gap).toBeGreaterThan(0.05)
   })
 })

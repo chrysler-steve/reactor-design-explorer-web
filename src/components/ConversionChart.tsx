@@ -24,7 +24,7 @@ export function ConversionChart({ x, y, xLabel, yLabel = 'Conversion Xₐ' }: Co
       ]}
       layout={{
         autosize: true,
-        margin: { l: 50, r: 20, t: 20, b: 45 },
+        margin: { l: 64, r: 20, t: 20, b: 48 },
         paper_bgcolor: 'transparent',
         plot_bgcolor: 'transparent',
         font: { color: 'currentColor', size: 12 },

@@ -42,8 +42,14 @@ export function defaultParams(): RxParams {
     rateForm: 1,
     nA: 1,
     nB: 1,
+    // Ea/A are chosen so conversion actually sweeps across the operating ranges
+    // below rather than pinning at 100%: with these, batch Xa runs ~5% at Tmin,
+    // ~50% at 350 K, ~100% at Tmax, and CSTR/PFR separate visibly in between
+    // (at 350 K, tau=50 min: CSTR 64% vs PFR 83%). The desktop app's original
+    // A = 1.11e8 put every reactor at >99% for the entire slider range, which
+    // left every chart flat. Ea is unchanged and still a plausible magnitude.
     Ea: 43790,
-    A: 1.11e8,
+    A: 1.2e5,
     Vr: 1.0,
     tmax: 20,
     Tmin: 298,

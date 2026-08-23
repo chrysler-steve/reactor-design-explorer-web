@@ -1,10 +1,11 @@
 import { Suspense, useRef } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { useFrame } from '@react-three/fiber'
 import { Environment, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import { convColor, interpAt } from '@/lib/speciesColors'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { GLASS_BASE, MotorHousing, VesselLid, useReactorPalette } from './parts'
+import { ReactorCanvas } from './ReactorCanvas'
 
 const VESSEL_TOP_Y = 1.0
 const IMPELLER_Y = -0.4
@@ -122,7 +123,7 @@ export function BatchScene({ xaTrajectory, kFraction, tempFraction }: BatchScene
   const spinSpeed = 0.4 + tempFraction * 3.2
   const { housing } = useReactorPalette()
   return (
-    <Canvas camera={{ position: [3.2, 2, 3.2], fov: 38 }} style={{ width: '100%', height: '320px' }} dpr={[1, 1.5]}>
+    <ReactorCanvas camera={{ position: [3.2, 2, 3.2], fov: 38 }} style={{ width: '100%', height: '320px' }} dpr={[1, 1.5]}>
       <ambientLight intensity={0.7} />
       <pointLight position={[5, 5, 5]} intensity={80} />
       <pointLight position={[-5, -2, -5]} intensity={20} />
@@ -134,6 +135,6 @@ export function BatchScene({ xaTrajectory, kFraction, tempFraction }: BatchScene
       <MarinePropeller speed={spinSpeed} />
       <MotorHousing topY={VESSEL_TOP_Y} housingColor={housing} />
       <OrbitControls enablePan={false} minDistance={2.2} maxDistance={8} />
-    </Canvas>
+    </ReactorCanvas>
   )
 }

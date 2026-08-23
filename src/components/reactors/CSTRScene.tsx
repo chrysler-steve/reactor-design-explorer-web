@@ -1,10 +1,11 @@
 import { Suspense, useRef } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { useFrame } from '@react-three/fiber'
 import { Environment, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import { convColor } from '@/lib/speciesColors'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { GLASS_BASE, MotorHousing, PipeStub, VesselLid, useReactorPalette } from './parts'
+import { ReactorCanvas } from './ReactorCanvas'
 
 const FEED_COLOR = convColor(0)
 const OUTLET_DIR = new THREE.Vector3(1, -0.15, 0).normalize()
@@ -178,7 +179,7 @@ export function CSTRScene({ conversion, kFraction, flowFraction }: CSTRSceneProp
   const flowSpeed = 0.3 + flowFraction * 1.4
   const { steel, housing } = useReactorPalette()
   return (
-    <Canvas camera={{ position: [3.4, 2, 3.4], fov: 38 }} style={{ width: '100%', height: '320px' }} dpr={[1, 1.5]}>
+    <ReactorCanvas camera={{ position: [3.4, 2, 3.4], fov: 38 }} style={{ width: '100%', height: '320px' }} dpr={[1, 1.5]}>
       <ambientLight intensity={0.7} />
       <pointLight position={[5, 5, 5]} intensity={80} />
       <pointLight position={[-5, -2, -5]} intensity={20} />
@@ -194,6 +195,6 @@ export function CSTRScene({ conversion, kFraction, flowFraction }: CSTRSceneProp
       <InletStream speed={flowSpeed} />
       <OutletStream speed={flowSpeed} conversion={conversion} />
       <OrbitControls enablePan={false} minDistance={2.2} maxDistance={8} />
-    </Canvas>
+    </ReactorCanvas>
   )
 }

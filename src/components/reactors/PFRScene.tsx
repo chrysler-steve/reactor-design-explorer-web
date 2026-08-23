@@ -1,10 +1,11 @@
 import { Suspense, useEffect, useMemo, useRef } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { useFrame } from '@react-three/fiber'
 import { Environment, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import { convColor, interpAt } from '@/lib/speciesColors'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { PipeStub, useReactorPalette } from './parts'
+import { ReactorCanvas } from './ReactorCanvas'
 
 const N_TUBES_HEX = 6
 const PITCH = 0.5
@@ -175,7 +176,7 @@ export function PFRScene({ xaProfile, flowFraction }: PFRSceneProps) {
   const { steel } = useReactorPalette()
 
   return (
-    <Canvas camera={{ position: [3.6, 1.6, 3.6], fov: 38 }} style={{ width: '100%', height: '320px' }} dpr={[1, 1.5]}>
+    <ReactorCanvas camera={{ position: [3.6, 1.6, 3.6], fov: 38 }} style={{ width: '100%', height: '320px' }} dpr={[1, 1.5]}>
       <ambientLight intensity={0.7} />
       <pointLight position={[5, 5, 5]} intensity={80} />
       <pointLight position={[-5, -2, -5]} intensity={20} />
@@ -192,6 +193,6 @@ export function PFRScene({ xaProfile, flowFraction }: PFRSceneProps) {
       ))}
       <TubeParticles xaProfile={xaProfile} speed={speed} />
       <OrbitControls enablePan={false} minDistance={2.4} maxDistance={9} />
-    </Canvas>
+    </ReactorCanvas>
   )
 }

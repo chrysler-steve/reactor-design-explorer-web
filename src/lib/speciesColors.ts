@@ -11,6 +11,19 @@ export const SPECIES_COLORS: [string, string, string, string] = [
   '#8C38BF',
 ]
 
+/**
+ * Per-slot line styles. Species with equal stoichiometry and equal initial
+ * concentration trace identical curves — with colour alone the later species
+ * paints over the earlier one, so the legend advertises four species while the
+ * chart shows two. Cycling the dash pattern keeps coincident curves readable.
+ */
+export const SPECIES_DASHES: [string, string, string, string] = [
+  'solid',
+  'dash',
+  'solid',
+  'dash',
+]
+
 /** Liquid color for a conversion Xa in [0,1]: blue (unreacted) -> amber (converted). */
 export function convColor(Xa: number): string {
   const t = Math.min(Math.max(Xa, 0), 1)
