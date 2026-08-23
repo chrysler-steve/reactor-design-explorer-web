@@ -182,11 +182,11 @@ export function SupportLegs({
         return (
           <group key={i} rotation={[0, -a, 0]}>
             <mesh position={[midR, (topY + bottomY) / 2, 0]} rotation={[0, 0, -tilt]}>
-              <cylinderGeometry args={[0.035, 0.045, length, 10]} />
+              <cylinderGeometry args={[0.05, 0.062, length, 10]} />
               <meshStandardMaterial {...STEEL_MATERIAL} />
             </mesh>
             <mesh position={[topRadius + splay, bottomY, 0]}>
-              <cylinderGeometry args={[0.1, 0.1, 0.03, 12]} />
+              <cylinderGeometry args={[0.13, 0.13, 0.035, 14]} />
               <meshStandardMaterial {...STEEL_MATERIAL} />
             </mesh>
           </group>
