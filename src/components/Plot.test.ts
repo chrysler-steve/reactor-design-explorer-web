@@ -12,12 +12,15 @@ import { describe, it, expect } from 'vitest'
  * disappearing as a dependency, or register() throwing on the trace we need.
  */
 describe('Plot module', () => {
-  it('builds a component from plotly core with the scatter trace registered', async () => {
+  // Generous timeouts: these are the only tests that import Plotly for real
+  // rather than mocking it, and that import is heavy enough to overrun the
+  // default deadline when the suite runs files in parallel.
+  it('builds a component from plotly core with the scatter trace registered', { timeout: 30_000 }, async () => {
     const mod = await import('./Plot')
     expect(mod.default).toBeTruthy()
   })
 
-  it('exposes scatter on the registered plotly instance', async () => {
+  it('exposes scatter on the registered plotly instance', { timeout: 30_000 }, async () => {
     const core = (await import('plotly.js/lib/core')) as unknown as {
       default?: { register?: unknown }
       register?: unknown
