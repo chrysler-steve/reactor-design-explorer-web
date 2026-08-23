@@ -220,8 +220,10 @@ export function CSTRScene({ conversion, kFraction, flowFraction }: CSTRSceneProp
   const spinSpeed = 0.4 + kFraction * 5.5
   const flowSpeed = 0.3 + flowFraction * 1.4
   const { steel, housing } = useReactorPalette()
+  // Stands taller than the batch vessel — the feed nozzle reaches y=1.78 — so it
+  // needs a longer standoff to keep the whole assembly in frame.
   return (
-    <ReactorCanvas camera={{ position: [3.5, 1.1, 3.5], fov: 44 }} style={{ width: '100%', height: '100%' }} dpr={[1, 1.5]}>
+    <ReactorCanvas camera={{ position: [3.9, 1.2, 3.9], fov: 44 }} style={{ width: '100%', height: '100%' }} dpr={[1, 1.5]}>
       <ambientLight intensity={0.7} />
       <pointLight position={[5, 5, 5]} intensity={80} />
       <pointLight position={[-5, -2, -5]} intensity={20} />
