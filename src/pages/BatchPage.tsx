@@ -42,7 +42,7 @@ export function BatchPage() {
           <CardHeader>
             <CardTitle>Batch Reactor</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4">
+          <CardContent className="flex flex-1 flex-col gap-4">
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Temperature</span>
@@ -64,7 +64,9 @@ export function BatchPage() {
               <dd className="text-right font-mono">{(conversion * 100).toFixed(1)}%</dd>
             </dl>
 
-            <BatchScene xaTrajectory={xaTrajectory} kFraction={kFraction} tempFraction={tempFraction} />
+            <div className="min-h-[320px] flex-1">
+              <BatchScene xaTrajectory={xaTrajectory} kFraction={kFraction} tempFraction={tempFraction} />
+            </div>
           </CardContent>
         </Card>
 

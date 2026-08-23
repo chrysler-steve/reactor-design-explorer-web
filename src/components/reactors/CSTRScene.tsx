@@ -218,7 +218,7 @@ export function CSTRScene({ conversion, kFraction, flowFraction }: CSTRSceneProp
   const flowSpeed = 0.3 + flowFraction * 1.4
   const { steel, housing } = useReactorPalette()
   return (
-    <ReactorCanvas camera={{ position: [3.6, 1.7, 3.6], fov: 42 }} style={{ width: '100%', height: '320px' }} dpr={[1, 1.5]}>
+    <ReactorCanvas camera={{ position: [3.5, 1.1, 3.5], fov: 44 }} style={{ width: '100%', height: '100%' }} dpr={[1, 1.5]}>
       <ambientLight intensity={0.7} />
       <pointLight position={[5, 5, 5]} intensity={80} />
       <pointLight position={[-5, -2, -5]} intensity={20} />
@@ -233,7 +233,7 @@ export function CSTRScene({ conversion, kFraction, flowFraction }: CSTRSceneProp
       <PipeStub from={OUTLET_START.toArray()} to={OUTLET_END.toArray()} radius={0.08} color={steel} />
       <InletStream speed={flowSpeed} />
       <OutletStream speed={flowSpeed} conversion={conversion} />
-      <OrbitControls enablePan={false} minDistance={2.2} maxDistance={8} />
+      <OrbitControls enablePan={false} target={[0, -0.1, 0]} minDistance={2.2} maxDistance={8} />
     </ReactorCanvas>
   )
 }

@@ -211,8 +211,11 @@ export function PFRScene({ xaProfile, flowFraction }: PFRSceneProps) {
   const feedColor = convColor(xaProfile[0] ?? 0)
   const productColor = convColor(xaProfile[xaProfile.length - 1] ?? 0)
 
+  // Viewed close to side-on. A three-quarter view puts the near tubesheet flat
+  // across the middle of the frame, where it hides most of the bundle; from here
+  // the tubesheets are edge-on and all twelve tubes run clear across the shell.
   return (
-    <ReactorCanvas camera={{ position: [3.9, 1.9, 3.9], fov: 40 }} style={{ width: '100%', height: '320px' }} dpr={[1, 1.5]}>
+    <ReactorCanvas camera={{ position: [1.9, 1.25, 6.0], fov: 34 }} style={{ width: '100%', height: '100%' }} dpr={[1, 1.5]}>
       <ambientLight intensity={0.7} />
       <pointLight position={[5, 5, 5]} intensity={80} />
       <pointLight position={[-5, -2, -5]} intensity={20} />

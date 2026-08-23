@@ -161,7 +161,7 @@ export function BatchScene({ xaTrajectory, kFraction, tempFraction }: BatchScene
   const spinSpeed = 0.4 + tempFraction * 3.2
   const { housing } = useReactorPalette()
   return (
-    <ReactorCanvas camera={{ position: [3.5, 1.7, 3.5], fov: 40 }} style={{ width: '100%', height: '320px' }} dpr={[1, 1.5]}>
+    <ReactorCanvas camera={{ position: [3.4, 1.0, 3.4], fov: 42 }} style={{ width: '100%', height: '100%' }} dpr={[1, 1.5]}>
       <ambientLight intensity={0.7} />
       <pointLight position={[5, 5, 5]} intensity={80} />
       <pointLight position={[-5, -2, -5]} intensity={20} />
@@ -172,7 +172,9 @@ export function BatchScene({ xaTrajectory, kFraction, tempFraction }: BatchScene
       <AnimatedLiquid xaTrajectory={xaTrajectory} kFraction={kFraction} fillRatio={0.85} />
       <MarinePropeller speed={spinSpeed} />
       <MotorHousing topY={VESSEL_TOP_Y} housingColor={housing} />
-      <OrbitControls enablePan={false} minDistance={2.2} maxDistance={8} />
+      {/* Target the assembly's centre of mass, not the origin — the vessel now
+        * extends well below y=0 on its legs. */}
+      <OrbitControls enablePan={false} target={[0, -0.15, 0]} minDistance={2.2} maxDistance={8} />
     </ReactorCanvas>
   )
 }
