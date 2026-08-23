@@ -215,7 +215,7 @@ export function PFRScene({ xaProfile, flowFraction }: PFRSceneProps) {
   // across the middle of the frame, where it hides most of the bundle; from here
   // the tubesheets are edge-on and all twelve tubes run clear across the shell.
   return (
-    <ReactorCanvas camera={{ position: [1.9, 1.25, 6.0], fov: 34 }} style={{ width: '100%', height: '100%' }} dpr={[1, 1.5]}>
+    <ReactorCanvas camera={{ position: [2.2, 1.5, 7.4], fov: 40 }} style={{ width: '100%', height: '100%' }} dpr={[1, 1.5]}>
       <ambientLight intensity={0.7} />
       <pointLight position={[5, 5, 5]} intensity={80} />
       <pointLight position={[-5, -2, -5]} intensity={20} />
@@ -240,7 +240,10 @@ export function PFRScene({ xaProfile, flowFraction }: PFRSceneProps) {
       <FlowParticles xaProfile={xaProfile} speed={speed} />
       <SaddleSupports radius={SHELL_RADIUS} bottomY={-SHELL_RADIUS - 0.5} offsets={[-1.0, 1.0]} />
 
-      <OrbitControls enablePan={false} minDistance={2.6} maxDistance={9} />
+      {/* The shell plus both nozzles spans ~5.2 units horizontally, and the card
+        * is now taller than it is wide, so the horizontal field of view is the
+        * binding constraint — hence the long standoff. */}
+      <OrbitControls enablePan={false} target={[0, -0.2, 0]} minDistance={3.5} maxDistance={12} />
     </ReactorCanvas>
   )
 }
