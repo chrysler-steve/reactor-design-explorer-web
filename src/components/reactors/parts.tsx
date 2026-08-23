@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import * as THREE from 'three'
 import { useTheme } from '@/hooks/useTheme'
+import { legGeometry } from '@/lib/vesselSupports'
 
 /**
  * Mirrors src/index.css --primary/--secondary tokens. Kept as a manual copy
@@ -172,20 +173,18 @@ export function SupportLegs({
   splay?: number
   count?: number
 }) {
-  const length = Math.hypot(topY - bottomY, splay)
-  const tilt = Math.atan2(splay, topY - bottomY)
+  const leg = legGeometry(topY, bottomY, topRadius, splay)
   return (
     <group>
       {Array.from({ length: count }, (_, i) => {
         const a = (i / count) * Math.PI * 2 + Math.PI / 6
-        const midR = topRadius + splay / 2
         return (
           <group key={i} rotation={[0, -a, 0]}>
-            <mesh position={[midR, (topY + bottomY) / 2, 0]} rotation={[0, 0, -tilt]}>
-              <cylinderGeometry args={[0.05, 0.062, length, 10]} />
+            <mesh position={[leg.midRadius, (topY + bottomY) / 2, 0]} rotation={[0, 0, leg.tilt]}>
+              <cylinderGeometry args={[0.05, 0.062, leg.length, 10]} />
               <meshStandardMaterial {...STEEL_MATERIAL} />
             </mesh>
-            <mesh position={[topRadius + splay, bottomY, 0]}>
+            <mesh position={[leg.footRadius, bottomY, 0]}>
               <cylinderGeometry args={[0.13, 0.13, 0.035, 14]} />
               <meshStandardMaterial {...STEEL_MATERIAL} />
             </mesh>
