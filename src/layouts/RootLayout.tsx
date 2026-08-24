@@ -5,6 +5,7 @@ import { ParamPanel } from '@/components/ParamPanel'
 import { ReactionCoordinateMark } from '@/components/ReactionCoordinateMark'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useSyncParamsFromUrl } from '@/hooks/useSyncParamsFromUrl'
+import { usePageMeta } from '@/hooks/usePageMeta'
 import { useSpotlightHover } from '@/hooks/useSpotlightHover'
 import { cn } from '@/lib/utils'
 
@@ -106,6 +107,7 @@ export function RootLayout() {
   const { pathname } = useLocation()
   const isHome = pathname === '/'
   useSyncParamsFromUrl()
+  usePageMeta()
 
   const navRowRef = useRef<HTMLDivElement>(null)
   const linkRefs = useRef<Map<string, HTMLAnchorElement>>(new Map())
