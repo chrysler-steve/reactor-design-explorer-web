@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParamsStore } from '@/store/paramsStore'
-import { equationString } from '@/lib/rxKinetics'
+import { equationString, limitingReactant } from '@/lib/rxKinetics'
 import { buildShareUrl } from '@/lib/shareConfig'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -66,6 +66,8 @@ export function ParamPanel() {
         </p>
         <ShareLinkButton />
       </div>
+
+      <LimitingReactantNotice />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>
@@ -220,6 +222,41 @@ export function ParamPanel() {
         </Card>
       </div>
     </div>
+  )
+}
+
+/**
+ * Rate form 1 is r = k*C1^n — a pseudo-order law that depends on species 1
+ * alone. It is valid while every other reactant is in excess, and it is what
+ * the desktop app models. When the user feeds a co-reactant that runs out
+ * first, the reaction keeps consuming species 1 past the point the feed can
+ * support, reporting conversions that cannot physically happen.
+ *
+ * The numbers are deliberately left alone — changing them would fork this port
+ * from the MATLAB results it is verified against. Instead the user is told the
+ * approximation has left its domain, and pointed at rate form 2, which does
+ * track the second species and stalls at the limiting reactant correctly.
+ */
+function LimitingReactantNotice() {
+  const params = useParamsStore((s) => s.params)
+  const limiting = limitingReactant(params)
+  if (!limiting) return null
+
+  const name = (params.species[limiting.index] || String.fromCharCode(65 + limiting.index)).trim()
+  const basis = (params.species[0] || 'A').trim()
+  const pct = (limiting.maxConversion * 100).toFixed(1)
+
+  return (
+    <p
+      role="status"
+      data-testid="limiting-reactant-notice"
+      className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-xs leading-relaxed text-amber-900 dark:text-amber-200"
+    >
+      <strong>{name} runs out first.</strong> Rate form 1 uses r = k·[{basis}]
+      <sup>n</sup>, which ignores {name} entirely, so {basis} keeps reacting past the{' '}
+      <strong>{pct}%</strong> conversion its feed can actually support. Switch to rate form 2 to
+      account for {name}.
+    </p>
   )
 }
 

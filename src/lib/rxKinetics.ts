@@ -353,3 +353,50 @@ export function solve_CSTR(P: RxParams, k: NumOrArr, tau: NumOrArr): ConcMatrix 
   }
   return out
 }
+
+/** A co-reactant that is exhausted before species 1 is. */
+export interface LimitingReactant {
+  /** 0-based species index. */
+  index: number
+  /** Conversion of species 1 at the point that species runs out, in [0,1]. */
+  maxConversion: number
+}
+
+/**
+ * The co-reactant, if any, that runs out before species 1 does.
+ *
+ * Rate form 1 is r = k*C1^n — a pseudo-order law that depends on species 1
+ * alone. That is a real rate law, valid while every other reactant is in
+ * excess, and it is what the desktop app models. Outside that regime it keeps
+ * consuming species 1 after a co-reactant has hit zero, reporting conversions
+ * the feed cannot support.
+ *
+ * Rather than silently changing the physics (which would fork this port from
+ * the MATLAB ground truth it is verified against), callers use this to tell the
+ * user their configuration has left the approximation's domain, and that rate
+ * form 2 — which does track the second species — is the right tool there.
+ *
+ * Returns null when species 1 limits, when nothing else is a reactant, for rate
+ * form 2, or when species 1 has no feed at all (conversion is undefined).
+ */
+export function limitingReactant(P: RxParams): LimitingReactant | null {
+  if (P.rateForm !== 1) return null
+
+  // Extent of reaction each reactant can sustain before it is exhausted.
+  const capacity = (i: number) => P.C0s[i] / Math.abs(P.nu[i])
+
+  if (P.nu[0] >= 0 || P.C0s[0] <= 0) return null
+  const basis = capacity(0)
+
+  let found: LimitingReactant | null = null
+  let scarcest = basis
+  for (let i = 1; i < 4; i++) {
+    if (P.nu[i] >= 0) continue
+    const cap = capacity(i)
+    if (cap < scarcest - 1e-12) {
+      scarcest = cap
+      found = { index: i, maxConversion: cap / basis }
+    }
+  }
+  return found
+}
