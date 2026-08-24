@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { ComparePage } from './ComparePage'
 import { useParamsStore } from '@/store/paramsStore'
 
-// jsdom can't render plotly.js-dist-min headlessly — exercised by build/typecheck
+// jsdom can't render plotly.js headlessly — exercised by build/typecheck
 // and manual verification instead. Stub it here so this test can check
 // ComparePage's own logic (readouts, data wiring).
 vi.mock('@/components/Plot', () => ({

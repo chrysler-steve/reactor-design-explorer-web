@@ -1,10 +1,14 @@
 import { createBrowserRouter } from 'react-router-dom'
 import { RootLayout } from '@/layouts/RootLayout'
+import { RouteLoading } from '@/components/RouteLoading'
 
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <RootLayout />,
+    // Every child below is code-split; without this the router renders nothing
+    // while the first chunk loads.
+    HydrateFallback: RouteLoading,
     children: [
       {
         index: true,

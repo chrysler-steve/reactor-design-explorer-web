@@ -50,7 +50,7 @@ export function PFRPage() {
         <CardHeader>
           <CardTitle>PFR</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4">
+        <CardContent className="flex flex-1 flex-col gap-4">
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Temperature</span>
@@ -101,7 +101,9 @@ export function PFRPage() {
             <span>FEED →</span>
             <span>→ PRODUCT</span>
           </div>
-          <PFRScene xaProfile={Xa_sweep} flowFraction={flowFraction} />
+          <div className="min-h-[320px] flex-1">
+            <PFRScene xaProfile={Xa_sweep} flowFraction={flowFraction} />
+          </div>
         </CardContent>
       </Card>
 

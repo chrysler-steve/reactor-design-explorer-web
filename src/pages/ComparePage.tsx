@@ -133,12 +133,16 @@ export function ComparePage() {
 
   const chartLayout = (yTitle: string) => ({
     autosize: true,
-    margin: { l: 50, r: 20, t: 20, b: 45 },
+    margin: { l: 64, r: 20, t: 20, b: 48 },
     paper_bgcolor: 'transparent',
     plot_bgcolor: 'transparent',
     font: { color: 'currentColor', size: 12 },
     xaxis: { title: { text: 'Temperature (K)' }, gridcolor: 'rgba(128,128,128,0.25)' },
-    yaxis: { title: { text: yTitle }, gridcolor: 'rgba(128,128,128,0.25)' },
+    yaxis: {
+      title: { text: yTitle },
+      gridcolor: 'rgba(128,128,128,0.25)',
+      exponentformat: 'none' as const,
+    },
     legend: { orientation: 'h' as const, y: -0.25 },
   })
 

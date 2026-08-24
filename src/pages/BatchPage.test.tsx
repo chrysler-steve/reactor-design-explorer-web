@@ -4,7 +4,7 @@ import { BatchPage } from './BatchPage'
 import { useParamsStore } from '@/store/paramsStore'
 
 // jsdom has no WebGL/ResizeObserver, so BatchScene (@react-three/fiber) and
-// Plot (plotly.js-dist-min) can't render headlessly — those are exercised by
+// Plot (plotly.js) can't render headlessly — those are exercised by
 // build/typecheck and manual verification instead. Stub them here so this
 // test can check BatchPage's own logic (readouts, data wiring).
 vi.mock('@/components/reactors/BatchScene', () => ({

@@ -24,7 +24,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.23.0",
-    "plotly.js-dist-min": "^3.6.0",
+    "plotly.js": "^3.7.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-plotly.js": "^4.0.0",

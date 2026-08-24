@@ -3,6 +3,9 @@ import {
   defaultParams,
   caBatch,
   caCSTR,
+  caPFR,
+  conversionOf,
+  rateConstant,
   solve_batch,
   solve_CSTR,
   solve_PFR,
@@ -178,5 +181,69 @@ describe('rxKinetics — equationString / maxConcentration', () => {
   it('maxConcentration: product with |nu| > 1 exceeds every initial concentration', () => {
     const P: RxParams = { ...defaultParams(), nu: [-1, 3, 0, 0], C0s: [1, 0, 0, 0] }
     expect(maxConcentration(P)).toBeCloseTo(3, 9)
+  })
+})
+
+/**
+ * The shipped defaults have to leave the reactors somewhere interesting: the
+ * app's whole interaction is dragging temperature and flow rate and watching
+ * conversion respond. An earlier default (A = 1.11e8) put every reactor above
+ * 99% across the entire slider range, so every chart rendered as a flat line
+ * and neither slider changed anything visible.
+ */
+describe('rxKinetics — zero-order CSTR exhausts its feed instead of stalling', () => {
+  // Regression: bisect() assumes f(lo) >= 0 >= f(hi), which n = 0 breaks once
+  // k*tau exceeds C0 — both endpoints go negative, bisection walks to C0, and a
+  // fully-converted reactor reported 0% conversion.
+  const P: RxParams = { ...defaultParams(), nA: 0, C0s: [0.1, 0, 0, 0], nu: [-1, 1, 0, 0] }
+
+  it('fully converts when k*tau exceeds the feed concentration', () => {
+    // k*tau = 0.01 * 50 = 0.5, well past C0 = 0.1.
+    expect(caCSTR(P, 0.01, [50])[0]).toBeCloseTo(0, 9)
+    expect(conversionOf(P, caCSTR(P, 0.01, [50])[0])).toBeCloseTo(1, 9)
+  })
+
+  it('leaves the exact linear remainder when k*tau is below the feed', () => {
+    // Zero order consumes at a constant rate: C = C0 - k*tau.
+    expect(caCSTR(P, 0.001, [50])[0]).toBeCloseTo(0.05, 9)
+  })
+
+  it('is monotone in residence time', () => {
+    const taus = [1, 5, 10, 25, 50, 100]
+    const cs = taus.map((t) => caCSTR(P, 0.001, [t])[0])
+    for (let i = 1; i < cs.length; i++) expect(cs[i]).toBeLessThanOrEqual(cs[i - 1] + 1e-12)
+  })
+
+  it('still solves ordinary fractional orders through bisection', () => {
+    const half: RxParams = { ...defaultParams(), nA: 0.5, C0s: [1, 0, 0, 0], nu: [-1, 1, 0, 0] }
+    const C = caCSTR(half, 0.2, [3])[0]
+    // C0 - C - k*tau*sqrt(C) = 0 must hold at the returned root.
+    expect(1 - C - 0.2 * 3 * Math.sqrt(C)).toBeCloseTo(0, 9)
+  })
+})
+
+describe('rxKinetics — default parameters stay in a responsive regime', () => {
+  const P = defaultParams()
+  const XaBatch = (T: number) => conversionOf(P, caBatch(P, rateConstant(P, T), [P.tmax])[0])
+  const XaCSTR = (T: number, tau: number) =>
+    conversionOf(P, caCSTR(P, rateConstant(P, T), [tau])[0])
+  const XaPFR = (T: number, tau: number) =>
+    conversionOf(P, caPFR(P, rateConstant(P, T), [P.Vr], P.Vr / tau)[0])
+
+  it('batch conversion sweeps most of [0,1] across the temperature range', () => {
+    expect(XaBatch(P.Tmin)).toBeLessThan(0.15)
+    expect(XaBatch(P.Tmax)).toBeGreaterThan(0.95)
+  })
+
+  it('batch conversion passes through mid-range inside the slider, not at its edge', () => {
+    const Xmid = XaBatch(0.5 * (P.Tmin + P.Tmax))
+    expect(Xmid).toBeGreaterThan(0.5)
+    expect(Xmid).toBeLessThan(0.995)
+  })
+
+  it('CSTR and PFR separate visibly at mid-range, so Compare shows a real gap', () => {
+    const tau = P.Vr / P.qmin
+    const gap = XaPFR(350, tau) - XaCSTR(350, tau)
+    expect(gap).toBeGreaterThan(0.05)
   })
 })

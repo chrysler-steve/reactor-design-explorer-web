@@ -1,13 +1,30 @@
-import { Suspense, useRef } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Suspense, useMemo, useRef } from 'react'
+import { useFrame } from '@react-three/fiber'
 import { Environment, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import { convColor, interpAt } from '@/lib/speciesColors'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
-import { GLASS_BASE, MotorHousing, VesselLid, useReactorPalette } from './parts'
+import {
+  GlassVessel,
+  MotorHousing,
+  SteelFlange,
+  SupportRing,
+  SupportLegs,
+  TieRods,
+  WallBaffles,
+  useReactorPalette,
+  vesselProfilePoints,
+} from './parts'
+import { ReactorCanvas } from './ReactorCanvas'
 
 const VESSEL_TOP_Y = 1.0
 const IMPELLER_Y = -0.4
+/** Where the straight wall stops and the dished bottom begins. */
+const KNUCKLE_Y = -0.45
+const DISH_DEPTH = 0.62
+const VESSEL_RADIUS = 0.95
+/** Underside of the leg pads. */
+const BASE_Y = -1.5
 
 function MarinePropeller({ speed }: { speed: number }) {
   const ref = useRef<THREE.Group>(null)
@@ -73,35 +90,54 @@ function AnimatedLiquid({
     matRef.current.color.set(convColor(interpAt(xaTrajectory, u)))
   })
 
-  const height = 1.7 * fillRatio
-  return (
-    <mesh position={[0, -0.85 + height / 2, 0]}>
-      <cylinderGeometry args={[0.92, 0.92, height, 40]} />
-      <meshPhysicalMaterial
-        ref={matRef}
-        color={initialColor}
-        transparent
-        opacity={0.68}
-        transmission={0.12}
-        ior={1.33}
-        thickness={0.6}
-        roughness={0.1}
-        clearcoat={0.3}
-        clearcoatRoughness={0.25}
-      />
-    </mesh>
+  // The liquid follows the vessel's dished bottom rather than sitting in it as a
+  // flat-ended cylinder, so the charge reads as filling the actual vessel.
+  const liquidRadius = VESSEL_RADIUS - 0.03
+  const fillTopY = KNUCKLE_Y + (VESSEL_TOP_Y - KNUCKLE_Y) * fillRatio
+  const profile = useMemo(
+    () => vesselProfilePoints(liquidRadius, fillTopY, KNUCKLE_Y, DISH_DEPTH),
+    [liquidRadius, fillTopY],
   )
-}
 
-function Vessel() {
-  const { glassAttenuation } = useReactorPalette()
   return (
     <group>
       <mesh>
-        <cylinderGeometry args={[1, 1, 2, 40, 1, true]} />
-        <meshPhysicalMaterial {...GLASS_BASE} attenuationColor={glassAttenuation} attenuationDistance={0.6} />
+        <latheGeometry args={[profile, 56]} />
+        <meshPhysicalMaterial
+          ref={matRef}
+          color={initialColor}
+          transparent
+          opacity={0.62}
+          roughness={0.12}
+          clearcoat={0.35}
+          clearcoatRoughness={0.25}
+          side={THREE.DoubleSide}
+        />
       </mesh>
-      <VesselLid y={VESSEL_TOP_Y} radius={1} holeRadius={0.28} />
+      {/* Free surface, so the charge has a visible top rather than an open shell. */}
+      <mesh position={[0, fillTopY, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[liquidRadius, 56]} />
+        <meshPhysicalMaterial color={initialColor} transparent opacity={0.8} roughness={0.18} side={THREE.DoubleSide} />
+      </mesh>
+    </group>
+  )
+}
+
+/** Glass body with a dished bottom, bolted top flange, tie rods down to a base
+ * ring, wall baffles and three legs. */
+function Vessel() {
+  return (
+    <group>
+      <GlassVessel radius={VESSEL_RADIUS} topY={VESSEL_TOP_Y} knuckleY={KNUCKLE_Y} dishDepth={DISH_DEPTH} />
+      <SteelFlange y={VESSEL_TOP_Y} radius={VESSEL_RADIUS + 0.07} />
+      <WallBaffles radius={VESSEL_RADIUS} topY={VESSEL_TOP_Y - 0.12} bottomY={KNUCKLE_Y + 0.05} />
+      <TieRods topY={VESSEL_TOP_Y} bottomY={KNUCKLE_Y} radius={VESSEL_RADIUS + 0.07} />
+      <SupportRing y={KNUCKLE_Y} radius={VESSEL_RADIUS + 0.04} />
+      <SupportLegs
+        topY={KNUCKLE_Y}
+        bottomY={BASE_Y}
+        topRadius={VESSEL_RADIUS + 0.05}
+      />
     </group>
   )
 }
@@ -115,14 +151,15 @@ interface BatchSceneProps {
   tempFraction: number
 }
 
-/** 3D batch-reactor vessel: pitched marine-propeller agitator on a motor
- * housing, glass vessel wall, liquid that continuously loops through the
- * reaction's color trajectory — mirrors the MATLAB app's animation intent. */
+/** 3D batch reactor: glass body with a dished bottom on a bolted flange, tie
+ * rods, wall baffles and legs; pitched marine-propeller agitator on a motor
+ * housing; liquid that continuously loops through the reaction's color
+ * trajectory — mirrors the MATLAB app's animation intent. */
 export function BatchScene({ xaTrajectory, kFraction, tempFraction }: BatchSceneProps) {
   const spinSpeed = 0.4 + tempFraction * 3.2
   const { housing } = useReactorPalette()
   return (
-    <Canvas camera={{ position: [3.2, 2, 3.2], fov: 38 }} style={{ width: '100%', height: '320px' }} dpr={[1, 1.5]}>
+    <ReactorCanvas camera={{ position: [3.4, 1.0, 3.4], fov: 42 }} style={{ width: '100%', height: '100%' }} dpr={[1, 1.5]}>
       <ambientLight intensity={0.7} />
       <pointLight position={[5, 5, 5]} intensity={80} />
       <pointLight position={[-5, -2, -5]} intensity={20} />
@@ -133,7 +170,9 @@ export function BatchScene({ xaTrajectory, kFraction, tempFraction }: BatchScene
       <AnimatedLiquid xaTrajectory={xaTrajectory} kFraction={kFraction} fillRatio={0.85} />
       <MarinePropeller speed={spinSpeed} />
       <MotorHousing topY={VESSEL_TOP_Y} housingColor={housing} />
-      <OrbitControls enablePan={false} minDistance={2.2} maxDistance={8} />
-    </Canvas>
+      {/* Target the assembly's centre of mass, not the origin — the vessel now
+        * extends well below y=0 on its legs. */}
+      <OrbitControls enablePan={false} target={[0, -0.15, 0]} minDistance={2.2} maxDistance={8} />
+    </ReactorCanvas>
   )
 }

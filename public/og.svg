@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="'IBM Plex Sans','Segoe UI',Helvetica,Arial,sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="55%" stop-color="#131c2b"/>
+      <stop offset="100%" stop-color="#0e1622"/>
+    </linearGradient>
+    <linearGradient id="tube" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#2666E0"/>
+      <stop offset="55%" stop-color="#6E8FB4"/>
+      <stop offset="100%" stop-color="#F5D461"/>
+    </linearGradient>
+    <linearGradient id="liq" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5E8FD6" stop-opacity=".55"/>
+      <stop offset="100%" stop-color="#2666E0" stop-opacity=".38"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="5" fill="#E08A4F"/>
+
+  <!-- reaction-coordinate mark -->
+  <path d="M76 126 q26 -46 52 0 t52 0" fill="none" stroke="#E08A4F" stroke-width="7" stroke-linecap="round"/>
+
+  <text x="76" y="248" fill="#F4F8FA" font-size="76" font-weight="600" letter-spacing="-1.5">Reactor Design Explorer</text>
+  <text x="76" y="312" fill="#9FB3C8" font-size="31">Batch · CSTR · PFR — solved live, rendered in 3D</text>
+
+  <text x="76" y="404" fill="#8FA6BC" font-size="25">Custom multi-species kinetics, in the browser</text>
+
+  <!-- axial conversion gradient, the app's signature read -->
+  <g>
+    <text x="76" y="470" fill="#6E8299" font-size="19" letter-spacing="2.4">FEED</text>
+    <text x="474" y="470" fill="#6E8299" font-size="19" letter-spacing="2.4" text-anchor="end">PRODUCT</text>
+    <rect x="76" y="484" width="398" height="17" rx="8.5" fill="url(#tube)"/>
+    <rect x="76" y="516" width="398" height="17" rx="8.5" fill="url(#tube)" opacity=".62"/>
+    <rect x="76" y="548" width="398" height="17" rx="8.5" fill="url(#tube)" opacity=".34"/>
+  </g>
+
+  <!-- glass vessel with dished bottom -->
+  <g transform="translate(838 320)" stroke="#93A7BD" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="-118" y="-186" width="236" height="20" rx="7" fill="#AEBAC7" stroke="none"/>
+    <path d="M-100 -166 V22 A100 108 0 0 0 100 22 V-166 Z" fill="url(#liq)" stroke="none"/>
+    <path d="M-100 -166 V22 A100 108 0 0 0 100 22 V-166" stroke-width="4.5"/>
+    <path d="M-112 -166 V64 M112 -166 V64" stroke-width="3" opacity=".62"/>
+    <ellipse cx="0" cy="-166" rx="100" ry="17" stroke-width="3" opacity=".5"/>
+    <path d="M0 -166 V-14" stroke-width="4.5"/>
+    <path d="M-46 -14 H46" stroke-width="4.5"/>
+    <rect x="-20" y="-232" width="40" height="46" rx="10" fill="#2B4C6F" stroke="none"/>
+    <ellipse cx="0" cy="64" rx="112" ry="14" stroke-width="4" opacity=".75"/>
+    <path d="M-84 70 L-104 158 M84 70 L104 158" stroke-width="7"/>
+  </g>
+</svg>

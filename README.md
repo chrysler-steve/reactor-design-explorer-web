@@ -1,32 +1,70 @@
-# React + TypeScript + Vite
+# Reactor Design Explorer
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+An interactive chemical reaction engineering simulator. Define a custom
+multi-species reaction and its kinetics, then watch Batch, CSTR and PFR
+reactors solve it in real time — with the physics rendered live in 3D, in the
+browser.
 
-Currently, two official plugins are available:
+**→ [reactor-design-explorer-web.vercel.app](https://reactor-design-explorer-web.vercel.app)**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## What it does
 
-## React Compiler
+Set up any reaction across four species — names, stoichiometric coefficients,
+initial concentrations — pick a rate law, then explore how the three ideal
+reactors respond:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Batch** — a well-mixed vessel; concentration evolving over time.
+- **CSTR** — a continuously stirred tank, solved at steady state.
+- **PFR** — a tubular plug-flow reactor with an axial conversion profile.
+- **Compare** — all three overlaid, so the classic result that a PFR
+  outperforms a CSTR for positive-order kinetics is visible rather than
+  asserted.
 
-## Expanding the Oxlint configuration
+Drag temperature and flow rate and everything updates together: the charts, the
+readouts, and the 3D vessels — liquid colour tracking conversion, agitators
+turning with the rate constant, feed and product particles flowing at the
+volumetric flow rate.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+Any configuration can be shared as a URL via **Copy share link**.
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+## Kinetics
+
+Two rate laws are supported:
+
+| Form | Rate law | Solved by |
+| --- | --- | --- |
+| 1 | r = k·[A]ⁿ | Closed-form nth-order solutions |
+| 2 | r = k·[A]^nA·[B]^nB | RK4 integration; bisection for the CSTR |
+
+with k from the Arrhenius expression k = A·exp(−Eₐ/RT).
+
+Form 1 depends on species 1 alone — a pseudo-order law, valid while every other
+reactant is in excess. Feed a co-reactant that runs out first and the app says
+so, and points you at form 2, which tracks the second species properly.
+
+## Provenance
+
+This is a TypeScript port of a MATLAB App Designer application. The physics core
+(`src/lib/rxKinetics.ts`) is a function-for-function port of `rxKinetics.m`, and
+its test suite checks the port against fixtures captured from a live MATLAB
+session rather than against itself — so the browser and the desktop app agree on
+the numbers.
+
+## Running it
+
+```bash
+npm install
+npm run dev        # dev server
+npm test           # unit tests
+npm run typecheck  # tsc, no emit
+npm run build      # production build
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Built with
+
+React 19, TypeScript, Vite, Three.js via React Three Fiber, Plotly (a
+scatter-only custom build), Zustand, Tailwind CSS and shadcn/ui.
+
+## License
+
+MIT — see [LICENSE](./LICENSE).

@@ -42,8 +42,14 @@ export function defaultParams(): RxParams {
     rateForm: 1,
     nA: 1,
     nB: 1,
+    // Ea/A are chosen so conversion actually sweeps across the operating ranges
+    // below rather than pinning at 100%: with these, batch Xa runs ~5% at Tmin,
+    // ~50% at 350 K, ~100% at Tmax, and CSTR/PFR separate visibly in between
+    // (at 350 K, tau=50 min: CSTR 64% vs PFR 83%). The desktop app's original
+    // A = 1.11e8 put every reactor at >99% for the entire slider range, which
+    // left every chart flat. Ea is unchanged and still a plausible magnitude.
     Ea: 43790,
-    A: 1.11e8,
+    A: 1.2e5,
     Vr: 1.0,
     tmax: 20,
     Tmin: 298,
@@ -207,7 +213,16 @@ export function caCSTR(P: RxParams, k: NumOrArr, tau: NumOrArr): number[] {
     // Radicand goes negative only for a nonphysical negative tau/k/C0 — clamp
     // to 0 rather than propagate NaN through every downstream concentration.
     if (n === 2) return (2 * C0) / (1 + Math.sqrt(Math.max(1 + 4 * ki * ti * C0, 0)))
-    return bisect((C) => C0 - C - ki * ti * Math.pow(C, n), 0, C0)
+    const f = (C: number) => C0 - C - ki * ti * Math.pow(C, n)
+    // bisect() requires f(lo) >= 0 >= f(hi). That holds for every order above 0,
+    // where C^n -> 0 as C -> 0 and so f(0) = C0 > 0. At n = 0 the rate no longer
+    // vanishes with concentration (C^0 = 1), so f(0) = C0 - k*tau goes negative
+    // once the residence time is long enough to consume the whole feed. There is
+    // then no interior root: the reactant is simply exhausted. Without this
+    // guard the bracket is invalid, bisection walks to C0, and a fully converted
+    // reactor reports 0% conversion instead of 100%.
+    if (f(0) <= 0) return 0
+    return bisect(f, 0, C0)
   })
 }
 
@@ -337,4 +352,51 @@ export function solve_CSTR(P: RxParams, k: NumOrArr, tau: NumOrArr): ConcMatrix 
     for (let i = 0; i < 4; i++) out[i][j] = finalState[i]
   }
   return out
+}
+
+/** A co-reactant that is exhausted before species 1 is. */
+export interface LimitingReactant {
+  /** 0-based species index. */
+  index: number
+  /** Conversion of species 1 at the point that species runs out, in [0,1]. */
+  maxConversion: number
+}
+
+/**
+ * The co-reactant, if any, that runs out before species 1 does.
+ *
+ * Rate form 1 is r = k*C1^n — a pseudo-order law that depends on species 1
+ * alone. That is a real rate law, valid while every other reactant is in
+ * excess, and it is what the desktop app models. Outside that regime it keeps
+ * consuming species 1 after a co-reactant has hit zero, reporting conversions
+ * the feed cannot support.
+ *
+ * Rather than silently changing the physics (which would fork this port from
+ * the MATLAB ground truth it is verified against), callers use this to tell the
+ * user their configuration has left the approximation's domain, and that rate
+ * form 2 — which does track the second species — is the right tool there.
+ *
+ * Returns null when species 1 limits, when nothing else is a reactant, for rate
+ * form 2, or when species 1 has no feed at all (conversion is undefined).
+ */
+export function limitingReactant(P: RxParams): LimitingReactant | null {
+  if (P.rateForm !== 1) return null
+
+  // Extent of reaction each reactant can sustain before it is exhausted.
+  const capacity = (i: number) => P.C0s[i] / Math.abs(P.nu[i])
+
+  if (P.nu[0] >= 0 || P.C0s[0] <= 0) return null
+  const basis = capacity(0)
+
+  let found: LimitingReactant | null = null
+  let scarcest = basis
+  for (let i = 1; i < 4; i++) {
+    if (P.nu[i] >= 0) continue
+    const cap = capacity(i)
+    if (cap < scarcest - 1e-12) {
+      scarcest = cap
+      found = { index: i, maxConversion: cap / basis }
+    }
+  }
+  return found
 }

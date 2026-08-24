@@ -4,7 +4,7 @@ import { PFRPage } from './PFRPage'
 import { useParamsStore } from '@/store/paramsStore'
 
 // jsdom has no WebGL/ResizeObserver, so PFRScene (@react-three/fiber) and the
-// Plot-based charts (plotly.js-dist-min) can't render headlessly — those are
+// Plot-based charts (plotly.js) can't render headlessly — those are
 // exercised by build/typecheck and manual verification instead. Stub them here
 // so this test can check PFRPage's own logic (readouts, data wiring).
 vi.mock('@/components/reactors/PFRScene', () => ({
