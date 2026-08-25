@@ -86,6 +86,11 @@ node scripts/indexnow-ping.mjs    # tell Bing the site changed, after a deploy
 React 19, TypeScript, Vite, Three.js via React Three Fiber, Plotly (a
 scatter-only custom build), Zustand, Tailwind CSS and shadcn/ui.
 
+## Author
+
+Chrysler Steve Corquaye — [GitHub](https://github.com/chrysler-steve) ·
+[LinkedIn](https://linkedin.com/in/chrysler-corquaye-b54815262)
+
 ## License
 
 MIT — see [LICENSE](./LICENSE).
