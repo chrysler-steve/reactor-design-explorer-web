@@ -1,0 +1,31 @@
+{
+  "_comment": "Shared route metadata. Imported by src/lib/pageMeta.ts for the runtime SPA and read by scripts/prerender-routes.mjs at build time, so the static HTML and the client agree. Titles are stored in full rather than composed from siteName so a plain JSON reader needs no template logic.",
+  "siteName": "Reactor Design Explorer",
+  "siteUrl": "https://reactor-design-explorer-web.vercel.app",
+  "notFound": {
+    "title": "Page not found — Reactor Design Explorer",
+    "description": "That page does not exist on Reactor Design Explorer."
+  },
+  "routes": {
+    "/": {
+      "title": "Reactor Design Explorer",
+      "description": "Simulate Batch, CSTR, and PFR reactors with custom multi-species kinetics — live 3D vessels, right in your browser."
+    },
+    "/batch": {
+      "title": "Batch Reactor Simulator — Reactor Design Explorer",
+      "description": "Simulate a batch reactor: watch concentration evolve over time for a custom reaction, with conversion and rate constant updating live as you change temperature."
+    },
+    "/cstr": {
+      "title": "CSTR Simulator — Reactor Design Explorer",
+      "description": "Simulate a continuous stirred-tank reactor at steady state. See how exit conversion responds to temperature and flow rate, with residence time and rate constant shown live."
+    },
+    "/pfr": {
+      "title": "PFR Simulator — Reactor Design Explorer",
+      "description": "Simulate a plug-flow reactor and see the axial conversion profile develop along the reactor volume, rendered as a 3D shell-and-tube vessel."
+    },
+    "/compare": {
+      "title": "Compare Batch vs CSTR vs PFR — Reactor Design Explorer",
+      "description": "Compare Batch, CSTR and PFR conversion side by side across temperature and flow rate, and see why a PFR outperforms a CSTR for positive-order kinetics."
+    }
+  }
+}

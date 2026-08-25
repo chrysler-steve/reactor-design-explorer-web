@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom'
 import { RootLayout } from '@/layouts/RootLayout'
 import { RouteLoading } from '@/components/RouteLoading'
+import { NotFoundPage } from '@/pages/NotFoundPage'
 
 export const router = createBrowserRouter([
   {
@@ -9,6 +10,11 @@ export const router = createBrowserRouter([
     // Every child below is code-split; without this the router renders nothing
     // while the first chunk loads.
     HydrateFallback: RouteLoading,
+    // Replaces react-router's built-in "Unexpected Application Error!" screen,
+    // which talks to the developer rather than the visitor. Rendered without
+    // the layout, since a failure in the layout itself is one of the cases
+    // this has to survive.
+    errorElement: <NotFoundPage />,
     children: [
       {
         index: true,
@@ -45,6 +51,9 @@ export const router = createBrowserRouter([
           return { Component: ComparePage }
         },
       },
+      // Unmatched URLs render inside the layout, so the nav is still there to
+      // get out with. Vercel serves these with a real 404 status.
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
 ])

@@ -7,6 +7,7 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { useSyncParamsFromUrl } from '@/hooks/useSyncParamsFromUrl'
 import { usePageMeta } from '@/hooks/usePageMeta'
 import { useSpotlightHover } from '@/hooks/useSpotlightHover'
+import { isKnownRoute } from '@/lib/pageMeta'
 import { cn } from '@/lib/utils'
 
 const NAV_LINKS = [
@@ -65,7 +66,7 @@ function ActiveTabPill({
   linkRefs,
   containerRef,
 }: {
-  activeTo: string
+  activeTo: string | null
   linkRefs: RefObject<Map<string, HTMLAnchorElement>>
   containerRef: RefObject<HTMLDivElement | null>
 }) {
@@ -73,8 +74,12 @@ function ActiveTabPill({
 
   useLayoutEffect(() => {
     const measure = () => {
-      const el = linkRefs.current.get(activeTo)
       const pill = pillRef.current
+      // No tab matches an unmatched URL; parking the pill under Home would
+      // highlight a link the visitor isn't on.
+      if (pill) pill.style.opacity = activeTo ? '1' : '0'
+      if (!activeTo) return
+      const el = linkRefs.current.get(activeTo)
       const container = containerRef.current
       if (!el || !pill || !container) return
       const containerRect = container.getBoundingClientRect()
@@ -95,7 +100,7 @@ function ActiveTabPill({
     <span
       ref={pillRef}
       aria-hidden
-      className="glass-surface absolute top-0 left-0 z-0 rounded-md bg-primary/90 backdrop-blur-md transition-[transform,width,height] duration-300 ease-out"
+      className="glass-surface absolute top-0 left-0 z-0 rounded-md bg-primary/90 backdrop-blur-md transition-[transform,width,height,opacity] duration-300 ease-out"
     />
   )
 }
@@ -105,13 +110,16 @@ function ActiveTabPill({
 export function RootLayout() {
   const [panelOpen, setPanelOpen] = useState(true)
   const { pathname } = useLocation()
-  const isHome = pathname === '/'
+  // The setup panel belongs to the reactor pages. The home page has its own
+  // hero instead, and an unmatched URL renders the not-found page, where a
+  // stray parameter panel just looks broken.
+  const showPanel = pathname !== '/' && isKnownRoute(pathname)
   useSyncParamsFromUrl()
   usePageMeta()
 
   const navRowRef = useRef<HTMLDivElement>(null)
   const linkRefs = useRef<Map<string, HTMLAnchorElement>>(new Map())
-  const activeTo = NAV_LINKS.find((l) => isLinkActive(l, pathname))?.to ?? NAV_LINKS[0].to
+  const activeTo = NAV_LINKS.find((l) => isLinkActive(l, pathname))?.to ?? null
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -142,7 +150,7 @@ export function RootLayout() {
             <ActiveTabPill activeTo={activeTo} linkRefs={linkRefs} containerRef={navRowRef} />
           </div>
           <div className="ml-auto flex items-center gap-1">
-            {!isHome && (
+            {showPanel && (
               <button
                 type="button"
                 onClick={() => setPanelOpen((o) => !o)}
@@ -157,7 +165,7 @@ export function RootLayout() {
       </header>
 
       <main className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6">
-        {!isHome && panelOpen && <ParamPanel />}
+        {showPanel && panelOpen && <ParamPanel />}
         <Outlet />
       </main>
     </div>

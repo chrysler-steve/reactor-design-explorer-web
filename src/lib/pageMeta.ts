@@ -6,10 +6,17 @@
  * /pfr — they competed with each other rather than each ranking for its own
  * term. Titles lead with the specific reactor for the same reason: search
  * results truncate, and the distinguishing word should survive the cut.
+ *
+ * The table itself lives in pageMeta.data.json because the build-time
+ * prerenderer (scripts/prerender-routes.mjs) needs the same strings from plain
+ * Node, with no TypeScript in the loop. One source, two consumers — otherwise
+ * the static HTML and the client-side hook drift apart silently.
  */
 
-export const SITE_NAME = 'Reactor Design Explorer'
-export const SITE_URL = 'https://reactor-design-explorer-web.vercel.app'
+import data from './pageMeta.data.json'
+
+export const SITE_NAME = data.siteName
+export const SITE_URL = data.siteUrl
 
 export interface PageMeta {
   title: string
@@ -18,44 +25,31 @@ export interface PageMeta {
   canonical: string
 }
 
-const ROUTES: Record<string, { title: string; description: string }> = {
-  '/': {
-    title: SITE_NAME,
-    description:
-      'Simulate Batch, CSTR, and PFR reactors with custom multi-species kinetics — live 3D vessels, right in your browser.',
-  },
-  '/batch': {
-    title: `Batch Reactor Simulator — ${SITE_NAME}`,
-    description:
-      'Simulate a batch reactor: watch concentration evolve over time for a custom reaction, with conversion and rate constant updating live as you change temperature.',
-  },
-  '/cstr': {
-    title: `CSTR Simulator — ${SITE_NAME}`,
-    description:
-      'Simulate a continuous stirred-tank reactor at steady state. See how exit conversion responds to temperature and flow rate, with residence time and rate constant shown live.',
-  },
-  '/pfr': {
-    title: `PFR Simulator — ${SITE_NAME}`,
-    description:
-      'Simulate a plug-flow reactor and see the axial conversion profile develop along the reactor volume, rendered as a 3D shell-and-tube vessel.',
-  },
-  '/compare': {
-    title: `Compare Batch vs CSTR vs PFR — ${SITE_NAME}`,
-    description:
-      'Compare Batch, CSTR and PFR conversion side by side across temperature and flow rate, and see why a PFR outperforms a CSTR for positive-order kinetics.',
-  },
+const ROUTES: Record<string, { title: string; description: string }> = data.routes
+
+/** Tolerate trailing slashes so /batch and /batch/ aren't treated as two pages. */
+function normalize(pathname: string): string {
+  return pathname.length > 1 ? pathname.replace(/\/+$/, '') : '/'
 }
 
 /** Metadata for a pathname, falling back to the site defaults for unknown routes. */
 export function getPageMeta(pathname: string): PageMeta {
-  // Tolerate trailing slashes so /batch and /batch/ don't produce different
-  // canonicals for the same page.
-  const key = pathname.length > 1 ? pathname.replace(/\/+$/, '') : '/'
+  const key = normalize(pathname)
   const entry = ROUTES[key] ?? ROUTES['/']
   return {
     ...entry,
     canonical: SITE_URL + (key === '/' ? '/' : key),
   }
 }
+
+/** Whether a pathname is a real route. Unmatched URLs render the not-found page,
+ *  which should neither claim a canonical nor show the parameter panel. */
+export function isKnownRoute(pathname: string): boolean {
+  return normalize(pathname) in ROUTES
+}
+
+/** Title and description for an unmatched URL. Kept out of the route table
+ *  because it has no canonical — it is not a page we want in an index. */
+export const NOT_FOUND_META = data.notFound
 
 export const KNOWN_ROUTES = Object.keys(ROUTES)
