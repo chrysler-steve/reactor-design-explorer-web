@@ -1,5 +1,5 @@
 {
-  "_comment": "Shared route metadata. Imported by src/lib/pageMeta.ts for the runtime SPA and read by scripts/prerender-routes.mjs at build time, so the static HTML and the client agree. Titles are stored in full rather than composed from siteName so a plain JSON reader needs no template logic.",
+  "_comment": "Shared route metadata. Imported by src/lib/pageMeta.ts for the runtime SPA and read by scripts/prerender-routes.mjs at build time, so the static HTML and the client agree. h1 is the page heading, rendered both into the prerendered HTML and by the layout. Titles are stored in full rather than composed from siteName so a plain JSON reader needs no template logic.",
   "siteName": "Reactor Design Explorer",
   "siteUrl": "https://reactor-design-explorer-web.vercel.app",
   "notFound": {
@@ -9,23 +9,28 @@
   "routes": {
     "/": {
       "title": "Reactor Design Explorer",
-      "description": "Simulate Batch, CSTR, and PFR reactors with custom multi-species kinetics — live 3D vessels, right in your browser."
+      "description": "Simulate Batch, CSTR, and PFR reactors with custom multi-species kinetics — live 3D vessels, right in your browser.",
+      "h1": "Reactor Design Explorer"
     },
     "/batch": {
       "title": "Batch Reactor Simulator — Reactor Design Explorer",
-      "description": "Simulate a batch reactor: watch concentration evolve over time for a custom reaction, with conversion and rate constant updating live as you change temperature."
+      "description": "Simulate a batch reactor: watch concentration evolve over time for a custom reaction, with conversion and rate constant updating as you change temperature.",
+      "h1": "Batch reactor simulator"
     },
     "/cstr": {
       "title": "CSTR Simulator — Reactor Design Explorer",
-      "description": "Simulate a continuous stirred-tank reactor at steady state. See how exit conversion responds to temperature and flow rate, with residence time and rate constant shown live."
+      "description": "Simulate a continuous stirred-tank reactor at steady state. See how exit conversion responds to temperature and flow rate, with residence time shown live.",
+      "h1": "CSTR simulator — continuous stirred-tank reactor"
     },
     "/pfr": {
       "title": "PFR Simulator — Reactor Design Explorer",
-      "description": "Simulate a plug-flow reactor and see the axial conversion profile develop along the reactor volume, rendered as a 3D shell-and-tube vessel."
+      "description": "Simulate a plug-flow reactor and see the axial conversion profile develop along the reactor volume, rendered as a 3D shell-and-tube vessel.",
+      "h1": "PFR simulator — plug-flow reactor"
     },
     "/compare": {
       "title": "Compare Batch vs CSTR vs PFR — Reactor Design Explorer",
-      "description": "Compare Batch, CSTR and PFR conversion side by side across temperature and flow rate, and see why a PFR outperforms a CSTR for positive-order kinetics."
+      "description": "Compare Batch, CSTR and PFR conversion side by side across temperature and flow rate, and see why a PFR outperforms a CSTR for positive-order kinetics.",
+      "h1": "Compare Batch vs CSTR vs PFR"
     }
   }
 }

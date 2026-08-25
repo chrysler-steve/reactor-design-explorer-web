@@ -26,12 +26,19 @@ describe('getPageMeta', () => {
     for (const r of KNOWN_ROUTES) {
       const d = getPageMeta(r).description
       expect(d.length).toBeGreaterThanOrEqual(70)
-      expect(d.length).toBeLessThanOrEqual(200)
+      // Bing flags anything past ~160 as "Meta Description too long or too short".
+      expect(d.length).toBeLessThanOrEqual(160)
     }
   })
 
   it('names the site on every route', () => {
     for (const r of KNOWN_ROUTES) expect(getPageMeta(r).title).toContain(SITE_NAME)
+  })
+
+  it('gives every route a distinct, non-empty h1', () => {
+    const h1s = KNOWN_ROUTES.map((r) => getPageMeta(r).h1)
+    expect(new Set(h1s).size).toBe(h1s.length)
+    for (const h of h1s) expect(h.length).toBeGreaterThan(0)
   })
 
   it('builds absolute canonicals', () => {

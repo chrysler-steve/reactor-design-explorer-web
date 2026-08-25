@@ -21,11 +21,13 @@ export const SITE_URL = data.siteUrl
 export interface PageMeta {
   title: string
   description: string
+  /** The page's heading. Rendered into the prerendered HTML and by the layout. */
+  h1: string
   /** Absolute canonical URL, so query strings from share links don't split ranking. */
   canonical: string
 }
 
-const ROUTES: Record<string, { title: string; description: string }> = data.routes
+const ROUTES: Record<string, { title: string; description: string; h1: string }> = data.routes
 
 /** Tolerate trailing slashes so /batch and /batch/ aren't treated as two pages. */
 function normalize(pathname: string): string {

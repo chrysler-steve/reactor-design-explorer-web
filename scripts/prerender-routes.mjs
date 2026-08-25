@@ -80,22 +80,30 @@ function structuredData() {
   })
 }
 
-/** Plain-HTML summary of the page for crawlers that never run the app. */
-function noscriptBlock(routePath) {
+/**
+ * Plain-HTML summary of the page for crawlers that never run the app.
+ *
+ * Lives inside #root rather than in a <noscript>: Bing's page analyser parses
+ * the raw HTML but does not count markup inside <noscript>, so an <h1> in there
+ * still reported as "H1 tag missing". React clears #root on mount, so this
+ * vanishes the moment the app starts; it is hidden until then, so there is no
+ * flash. With JavaScript off the app never runs, and the <noscript> stylesheet
+ * in index.html unhides this as the visible page.
+ */
+function seoFallback(routePath) {
   const c = CONTENT[routePath]
   const paragraphs = c.body.map((p) => `        <p>${escapeHtml(p)}</p>`).join('\n')
   const links = NAV.filter((n) => n.path !== routePath)
     .map((n) => `<li><a href="${n.path}">${escapeHtml(n.label)}</a></li>`)
     .join('')
-  return `    <noscript>
+  return `<div id="seo-fallback">
       <article>
-        <h1>${escapeHtml(c.heading)}</h1>
+        <h1>${escapeHtml(routes[routePath].h1)}</h1>
 ${paragraphs}
         <p><strong>This simulator needs JavaScript and WebGL to run.</strong> Enable JavaScript to use the interactive charts and 3D reactor views.</p>
         <nav aria-label="Reactor pages"><ul>${links}</ul></nav>
       </article>
-    </noscript>
-`
+    </div>`
 }
 
 function buildPage(shell, routePath) {
@@ -122,7 +130,7 @@ function buildPage(shell, routePath) {
     )
   }
 
-  html = html.replace(/<body[^>]*>/, (m) => `${m}\n${noscriptBlock(routePath)}`)
+  html = html.replace('<div id="root"></div>', `<div id="root">${seoFallback(routePath)}</div>`)
   return html
 }
 
@@ -138,13 +146,12 @@ function buildNotFound(shell) {
   html = setMeta(html, 'name', 'description', notFound.description)
   html = html.replace('<head>', '<head>\n    <meta name="robots" content="noindex" />')
   const links = NAV.map((n) => `<li><a href="${n.path}">${escapeHtml(n.label)}</a></li>`).join('')
-  const block = `    <noscript>
+  const block = `<div id="seo-fallback">
       <h1>Page not found</h1>
       <p>That page does not exist. Try one of these:</p>
       <nav aria-label="Reactor pages"><ul>${links}</ul></nav>
-    </noscript>
-`
-  return html.replace(/<body[^>]*>/, (m) => `${m}\n${block}`)
+    </div>`
+  return html.replace('<div id="root"></div>', `<div id="root">${block}</div>`)
 }
 
 const shell = await readFile(path.join(dist, 'index.html'), 'utf8')

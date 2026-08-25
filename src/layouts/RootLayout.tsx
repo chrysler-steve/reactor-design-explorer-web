@@ -7,7 +7,7 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { useSyncParamsFromUrl } from '@/hooks/useSyncParamsFromUrl'
 import { usePageMeta } from '@/hooks/usePageMeta'
 import { useSpotlightHover } from '@/hooks/useSpotlightHover'
-import { isKnownRoute } from '@/lib/pageMeta'
+import { getPageMeta, isKnownRoute } from '@/lib/pageMeta'
 import { cn } from '@/lib/utils'
 
 const NAV_LINKS = [
@@ -165,6 +165,11 @@ export function RootLayout() {
       </header>
 
       <main className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6">
+        {/* The reactor pages label themselves with card titles rather than a page
+            heading, so they shipped with no <h1> at all — no document outline for
+            a screen reader, and Bing flags it. The home and not-found pages
+            render their own visible <h1>, so this covers only the rest. */}
+        {showPanel && <h1 className="sr-only">{getPageMeta(pathname).h1}</h1>}
         {showPanel && panelOpen && <ParamPanel />}
         <Outlet />
       </main>
