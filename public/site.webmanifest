@@ -1,0 +1,16 @@
+{
+  "name": "Reactor Design Explorer",
+  "short_name": "Reactors",
+  "description": "Simulate Batch, CSTR, and PFR reactors with custom multi-species kinetics — live 3D vessels, right in your browser.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#12181F",
+  "theme_color": "#12181F",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

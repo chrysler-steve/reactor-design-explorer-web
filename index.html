@@ -3,16 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#12181F" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Google Search Console ownership verification. Must stay in the served
          HTML permanently — removing it un-verifies the property. -->
     <meta name="google-site-verification" content="TopGfwIK7lU-1G9SJPbLCwNjV3PWqf6FWHjEvKlhZTU" />
+    <!-- Title, description, canonical and og:* below are the homepage values.
+         scripts/prerender-routes.mjs overwrites them per route at build time —
+         edit src/lib/pageMeta.data.json, not this file. -->
     <title>Reactor Design Explorer</title>
     <meta
       name="description"
       content="Simulate Batch, CSTR, and PFR reactors with custom multi-species kinetics — live 3D vessels, right in your browser."
     />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Reactor Design Explorer" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:title" content="Reactor Design Explorer" />
     <meta
       property="og:description"
@@ -21,6 +29,10 @@
     <meta property="og:image" content="https://reactor-design-explorer-web.vercel.app/og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Reactor Design Explorer — Batch, CSTR and PFR reactor simulator"
+    />
     <meta property="og:url" content="https://reactor-design-explorer-web.vercel.app/" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Reactor Design Explorer" />

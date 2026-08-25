@@ -28,8 +28,17 @@ describe('usePageMeta', () => {
     expect(el?.getAttribute('href')).toBe('https://reactor-design-explorer-web.vercel.app/batch')
   })
 
-  it('falls back to the site title on an unknown route', () => {
+  it('titles an unknown route as not found rather than as the home page', () => {
     at('/nope')
-    expect(document.title).toBe('Reactor Design Explorer')
+    expect(document.title).toBe('Page not found — Reactor Design Explorer')
+  })
+
+  // A canonical here would point the 404 at the home page and invite it to be
+  // indexed as a duplicate of it.
+  it('claims no canonical on an unknown route', () => {
+    at('/batch')
+    expect(document.head.querySelector('link[rel="canonical"]')).not.toBeNull()
+    at('/nope')
+    expect(document.head.querySelector('link[rel="canonical"]')).toBeNull()
   })
 })

@@ -57,7 +57,28 @@ npm install
 npm run dev        # dev server
 npm test           # unit tests
 npm run typecheck  # tsc, no emit
-npm run build      # production build
+npm run build      # production build + per-route static HTML
+```
+
+`npm run build` runs `scripts/prerender-routes.mjs` after Vite, which writes one
+real HTML file per route (`dist/batch/index.html` and so on) with that route's
+title, description, canonical, `og:*` tags and a `<noscript>` summary. Without
+it the app serves an empty `<div id="root">` on every URL, which Google renders
+but Bing largely does not — so `/batch` and `/pfr` looked like the same blank
+page to half the web's crawlers. Route metadata lives in
+`src/lib/pageMeta.data.json`, read by both the prerenderer and the client-side
+`usePageMeta` hook; the prose for the `<noscript>` blocks is in
+`scripts/seo-content.mjs`. **Adding a route means updating both**, plus
+`public/sitemap.xml` — `scripts/prerender-routes.test.mjs` fails if they drift.
+
+Because every route is a real file, `vercel.json` carries no SPA catch-all
+rewrite; unknown paths get a genuine 404 (`dist/404.html`) instead of a 200.
+
+Two scripts are run by hand rather than on every build:
+
+```bash
+node scripts/generate-icons.mjs   # re-rasterise the PNG icons from favicon.svg
+node scripts/indexnow-ping.mjs    # tell Bing the site changed, after a deploy
 ```
 
 ## Built with
